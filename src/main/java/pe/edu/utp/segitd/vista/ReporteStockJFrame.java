@@ -3,7 +3,8 @@ package pe.edu.utp.segitd.vista;
 import pe.edu.utp.segitd.controlador.ReporteStockControlador;
 import pe.edu.utp.segitd.modelo.EstadoStock;
 import pe.edu.utp.segitd.modelo.FilaReporteStock;
-import pe.edu.utp.segitd.servicio.ReporteStockService;
+import pe.edu.utp.segitd.modelo.ReporteStock;
+
 import pe.edu.utp.segitd.servicio.ServicioException;
 
 import javax.swing.BorderFactory;
@@ -64,7 +65,7 @@ public class ReporteStockJFrame extends JFrame {
     private final JLabel valorProximos = new JLabel("0");
     private final JLabel valorDisponibles = new JLabel("0");
 
-    private ReporteStockService.ReporteStock reporteActual;
+    private ReporteStock reporteActual;
 
     /** Opción del combo que significa "no filtrar por categoría". */
     private static final String TODAS_CATEGORIAS = "Todas las categorías";
