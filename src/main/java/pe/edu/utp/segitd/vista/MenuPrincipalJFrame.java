@@ -3,7 +3,6 @@ package pe.edu.utp.segitd.vista;
 import pe.edu.utp.segitd.controlador.MenuPrincipalControlador;
 import pe.edu.utp.segitd.modelo.RolUsuario;
 import pe.edu.utp.segitd.modelo.Usuario;
-import pe.edu.utp.segitd.servicio.BackupService;
 import pe.edu.utp.segitd.servicio.IndicadoresDashboard;
 import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.SesionUsuario;
@@ -24,7 +23,6 @@ import java.nio.file.Path;
 public class MenuPrincipalJFrame extends JFrame {
 
     private final MenuPrincipalControlador controlador = new MenuPrincipalControlador();
-    private final BackupService backupService = new BackupService();
 
     private final JLabel indicadorConexion = new JLabel();
     private final JLabel valorProductosActivos = new JLabel("-");
@@ -417,7 +415,7 @@ public class MenuPrincipalJFrame extends JFrame {
 
     private void respaldarAhora() {
         try {
-            Path carpeta = backupService.ejecutarBackup();
+            Path carpeta = controlador.respaldarAhora();
             JOptionPane.showMessageDialog(this, "Respaldo generado en " + carpeta.toAbsolutePath(),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (ServicioException e) {
@@ -425,12 +423,9 @@ public class MenuPrincipalJFrame extends JFrame {
         }
     }
 
-    /** RNF-05: respaldo automático al cerrar si pasaron más de 24 h desde el último. */
     private void cerrarAplicacion() {
         try {
-            if (backupService.debeRespaldarAutomaticamente()) {
-                backupService.ejecutarBackup();
-            }
+            controlador.respaldarSiCorresponde();
         } catch (ServicioException e) {
             JOptionPane.showMessageDialog(this,
                     "No se pudo generar el respaldo automático: " + e.getMessage(),
