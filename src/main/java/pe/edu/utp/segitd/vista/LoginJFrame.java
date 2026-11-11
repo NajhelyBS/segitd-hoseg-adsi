@@ -1,9 +1,9 @@
 package pe.edu.utp.segitd.vista;
 
 import pe.edu.utp.segitd.modelo.Usuario;
-import pe.edu.utp.segitd.servicio.AuthService;
 import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.SesionUsuario;
+import pe.edu.utp.segitd.controlador.LoginControlador;
 
 import java.util.Arrays;
 import javax.swing.JOptionPane; 
@@ -16,12 +16,12 @@ import java.awt.event.MouseEvent;
 /**
  * Pantalla de autenticación (RF-01 / RNF-02). Valida contra Supabase con
  * SHA-256 + salt y aplica el bloqueo temporal tras 3 intentos fallidos
- * (ver AuthService).
+ * 
  */
 public class LoginJFrame extends JFrame {
 
-    private final AuthService authService = new AuthService();
-
+    private final LoginControlador controlador = new LoginControlador();
+     
     private final JTextField campoUsuario = new JTextField(15);
     private final JPasswordField campoPassword = new JPasswordField(15);
     private final JLabel etiquetaMensaje = new JLabel(" ");
@@ -200,8 +200,7 @@ public class LoginJFrame extends JFrame {
 
         botonIngresar.setEnabled(false);
         try {
-            Usuario autenticado = authService.autenticar(usuario, password);
-            SesionUsuario.obtenerInstancia().iniciarSesion(autenticado);
+            controlador.iniciarSesion(usuario, password);
             abrirMenuPrincipal();
         } catch (ServicioException ex) {
             String mensajeError = ex.getMessage();
