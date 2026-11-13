@@ -7,6 +7,8 @@ import pe.edu.utp.segitd.modelo.Producto;
 import pe.edu.utp.segitd.modelo.Proveedor;
 import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.Validador;
+import pe.edu.utp.segitd.util.SesionUsuario;
+
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -75,15 +77,19 @@ public class ProveedoresJFrame extends JFrame {
         cargarPedidos();
     }
 
-    private JPanel construirContenido() {
-        JPanel raiz = new JPanel(new BorderLayout());
-        raiz.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        JTabbedPane pestanas = new JTabbedPane();
-        pestanas.addTab("Proveedores", construirTabProveedores());
-        pestanas.addTab("Pedidos de reposición", construirTabPedidos());
-        raiz.add(pestanas, BorderLayout.CENTER);
-        return raiz;
-    }
+     private JPanel construirContenido() {
+     JPanel raiz = new JPanel(new BorderLayout());
+     raiz.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+     boolean esAdmin = SesionUsuario.obtenerInstancia().esAdministrador();
+     JTabbedPane pestanas = new JTabbedPane();
+     if (esAdmin) {
+         pestanas.addTab("Proveedores", construirTabProveedores());
+     }
+     pestanas.addTab("Pedidos de reposición", construirTabPedidos());
+     raiz.add(pestanas, BorderLayout.CENTER);
+     return raiz;
+ }
+
 
     // ---------- Proveedores ----------
 
@@ -219,15 +225,20 @@ public class ProveedoresJFrame extends JFrame {
 
     // ---------- Pedidos ----------
 
-    private JPanel construirTabPedidos() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
+     private JPanel construirTabPedidos() {
+     JPanel panel = new JPanel(new BorderLayout(10, 10));
+     panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
 
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, construirPanelListaPedidos(), construirPanelNuevoPedido());
-        split.setResizeWeight(0.65);
-        panel.add(split, BorderLayout.CENTER);
-        return panel;
-    }
+     if (SesionUsuario.obtenerInstancia().esAdministrador()) {
+         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, construirPanelListaPedidos(), construirPanelNuevoPedido());
+         split.setResizeWeight(0.65);
+         panel.add(split, BorderLayout.CENTER);
+     } else {
+         panel.add(construirPanelListaPedidos(), BorderLayout.CENTER);
+     }
+     return panel;
+ }
+
 
     private JPanel construirPanelListaPedidos() {
         tablaPedidos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -316,12 +327,14 @@ public class ProveedoresJFrame extends JFrame {
         return fila < 0 ? null : modeloPedidos.obtener(tablaPedidos.convertRowIndexToModel(fila));
     }
 
-    private void actualizarBotonesPedido() {
-        PedidoProveedor pedido = pedidoSeleccionado();
-        boolean solicitado = pedido != null && pedido.getEstado() == EstadoPedidoProveedor.SOLICITADO;
-        botonRecibido.setEnabled(solicitado);
-        botonAnularPedido.setEnabled(solicitado);
-    }
+     private void actualizarBotonesPedido() {
+     PedidoProveedor pedido = pedidoSeleccionado();
+     boolean esAdmin = SesionUsuario.obtenerInstancia().esAdministrador();
+     boolean solicitado = pedido != null && pedido.getEstado() == EstadoPedidoProveedor.SOLICITADO;
+     botonRecibido.setEnabled(solicitado);
+     botonAnularPedido.setEnabled(esAdmin && solicitado);
+ }
+
 
     private void registrarPedido() {
         Proveedor proveedor = (Proveedor) comboProveedorPedido.getSelectedItem();
@@ -344,20 +357,72 @@ public class ProveedoresJFrame extends JFrame {
         }
     }
 
-    private void marcarRecibido() {
-        PedidoProveedor pedido = pedidoSeleccionado();
-        if (pedido == null) {
-            return;
-        }
-        try {
-            controlador.marcarRecibido(pedido.getId());
-            cargarPedidos();
-            JOptionPane.showMessageDialog(this, "Pedido recibido: stock actualizado.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } catch (ServicioException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    
+     private void marcarRecibido() {
+     PedidoProveedor pedido = pedidoSeleccionado();
+     if (pedido == null) {
+         return;
+     }
 
+     JSpinner spinnerRecibido = new JSpinner(new SpinnerNumberModel(pedido.getCantidad(), 1, 1_000_000, 1));
+     JPanel panelDialogo = new JPanel(new GridBagLayout());
+     GridBagConstraints gbc = new GridBagConstraints();
+     gbc.insets = new Insets(4, 4, 4, 4);
+     gbc.anchor = GridBagConstraints.WEST;
+
+     gbc.gridx = 0; gbc.gridy = 0;
+     panelDialogo.add(new JLabel("Producto:"), gbc);
+     gbc.gridx = 1;
+     panelDialogo.add(new JLabel(pedido.getNombreProducto() != null ? pedido.getNombreProducto() : "—"), gbc);
+
+     gbc.gridx = 0; gbc.gridy = 1;
+     panelDialogo.add(new JLabel("Cantidad solicitada:"), gbc);
+     gbc.gridx = 1;
+     panelDialogo.add(new JLabel(String.valueOf(pedido.getCantidad())), gbc);
+
+     gbc.gridx = 0; gbc.gridy = 2;
+     panelDialogo.add(new JLabel("Cantidad recibida confirmada:"), gbc);
+     gbc.gridx = 1;
+     panelDialogo.add(spinnerRecibido, gbc);
+
+     int opcion = JOptionPane.showConfirmDialog(
+             this, panelDialogo, "Confirmar recepción de mercadería (CU08)",
+             JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+     if (opcion != JOptionPane.OK_OPTION) {
+         return;
+     }
+
+     int cantidadRecibida = ((Number) spinnerRecibido.getValue()).intValue();
+
+     // CU08 - Flujo alternativo A3: avisar si las cantidades no coinciden antes de confirmar
+     if (cantidadRecibida != pedido.getCantidad()) {
+         int diferencia = cantidadRecibida - pedido.getCantidad();
+         String signo = diferencia > 0 ? "+" + diferencia : String.valueOf(diferencia);
+         int confirmarDiferencia = JOptionPane.showConfirmDialog(
+                 this,
+                 "La cantidad recibida (" + cantidadRecibida + ") no coincide con la solicitada ("
+                         + pedido.getCantidad() + ").\nDiferencia: " + signo + " unidades.\n\n"
+                         + "¿Desea confirmar la recepción con la cantidad ingresada?",
+                 "Diferencia en recepción (CU08 - A3)",
+                 JOptionPane.YES_NO_OPTION,
+                 JOptionPane.WARNING_MESSAGE);
+         if (confirmarDiferencia != JOptionPane.YES_OPTION) {
+             return;
+         }
+     }
+
+     try {
+         controlador.marcarRecibido(pedido.getId(), cantidadRecibida);
+         cargarPedidos();
+         JOptionPane.showMessageDialog(this,
+                 "Recepción registrada: se sumaron " + cantidadRecibida + " unidades al stock comercial.",
+                 "Éxito", JOptionPane.INFORMATION_MESSAGE);
+     } catch (ServicioException e) {
+         JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+     }
+ }
+
+ 
     private void anularPedido() {
         PedidoProveedor pedido = pedidoSeleccionado();
         if (pedido == null) {

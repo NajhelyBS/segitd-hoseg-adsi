@@ -289,7 +289,7 @@ public class MenuPrincipalJFrame extends JFrame {
         panel.add(botonModulo("Pedidos web", true, () -> new PedidosWebJFrame().setVisible(true)));
         panel.add(botonModulo("Despacho de lotes", impacto, () -> new DespachoLotesJFrame().setVisible(true)));
         panel.add(botonModulo("Reportes de impacto", impacto, () -> new ReportesImpactoJFrame().setVisible(true)));
-        panel.add(botonModulo("Pedidos a proveedores", admin, () -> new ProveedoresJFrame().setVisible(true)));
+        panel.add(botonModulo("Pedidos a proveedores", almacen, () -> new ProveedoresJFrame().setVisible(true)));
         panel.add(botonModulo("Gestión de usuarios", admin, () -> new UsuariosJFrame().setVisible(true)));
 
         return panel;
