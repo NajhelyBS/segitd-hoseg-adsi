@@ -5,6 +5,7 @@ import pe.edu.utp.segitd.db.ConexionBD;
 import pe.edu.utp.segitd.modelo.EstadoStock;
 import pe.edu.utp.segitd.modelo.FilaReporteStock;
 import pe.edu.utp.segitd.modelo.Producto;
+import pe.edu.utp.segitd.modelo.ReporteStock;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -96,18 +97,5 @@ public class ReporteStockService {
             return EstadoStock.PROXIMO_A_AGOTAR;
         }
         return EstadoStock.DISPONIBLE;
-    }
-
-    /** Resultado ya clasificado, en tres grupos independientes. */
-    public record ReporteStock(List<FilaReporteStock> sinStock, List<FilaReporteStock> criticos,
-                                List<FilaReporteStock> disponibles) {
-
-        public int totalCriticos() {
-            return criticos.size();
-        }
-
-        public int totalProximosAAgotar() {
-            return (int) disponibles.stream().filter(f -> f.estado() == EstadoStock.PROXIMO_A_AGOTAR).count();
-        }
     }
 }

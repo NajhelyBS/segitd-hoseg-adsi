@@ -354,16 +354,21 @@ private void actualizarSugerenciaStockMinimo(String codigoProducto) {
         return panel;
     }
 
-    private void aplicarControlAcceso() {
+        private void aplicarControlAcceso() {
         if (esAdministrador) {
             return;
         }
+        boolean puedeAjustar =
+                SesionUsuario.obtenerInstancia().getUsuarioActual().getRol() == RolUsuario.ENCARGADO;
 
         Color grisDeshabilitado = new Color(0xE0, 0xE0, 0xE0);
         Color textoDeshabilitado = new Color(0x9E, 0x9E, 0x9E);
 
         JButton[] botones = {botonNuevo, botonGuardar, botonEliminar, botonAjustarStock};
         for (JButton b : botones) {
+            if (b == botonAjustarStock && puedeAjustar) {
+                continue;
+            }
             b.setEnabled(false);
             b.setBackground(grisDeshabilitado);
             b.setForeground(textoDeshabilitado);

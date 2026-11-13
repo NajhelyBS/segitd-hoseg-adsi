@@ -42,10 +42,11 @@ public class ProveedorControlador {
         proveedorService.crearPedido(idProveedor, codigoProducto, descripcion, cantidad, idUsuario);
     }
 
-    public void marcarRecibido(int idPedido) {
+        public void marcarRecibido(int idPedido, int cantidadRecibida) {
         int idUsuario = SesionUsuario.obtenerInstancia().getUsuarioActual().getId();
-        proveedorService.marcarRecibido(idPedido, idUsuario);
+        proveedorService.marcarRecibido(idPedido, cantidadRecibida, idUsuario);
     }
+
 
     public void anularPedido(int idPedido) {
         proveedorService.anularPedido(idPedido);

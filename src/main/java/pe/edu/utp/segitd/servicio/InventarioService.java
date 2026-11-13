@@ -195,4 +195,11 @@ public StockMinimoSugerido calcularStockMinimoSugerido(String codigoProducto) {
         throw new ServicioException("No se pudo calcular el stock mínimo sugerido.", e);
     }
 }
+
+    public List<Producto> listarProductosBajoStockMinimo() {
+        return listarProductos().stream()
+                .filter(p -> p.getStockComercial() <= p.getStockMinimo())
+                .toList();
+    }
+
 }

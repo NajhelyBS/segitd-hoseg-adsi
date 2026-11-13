@@ -99,7 +99,9 @@ public class ProveedorService {
         }
     }
 
-    public void marcarRecibido(int idPedido, int idUsuario) {
+    
+        public void marcarRecibido(int idPedido, int cantidadRecibida, int idUsuario) {
+        Validador.mayorQueCero(cantidadRecibida, "Cantidad recibida");
         try (Connection conexion = ConexionBD.obtenerConexion()) {
             conexion.setAutoCommit(false);
             try {
@@ -116,14 +118,19 @@ public class ProveedorService {
                 Producto producto = productoDAO.buscarPorCodigo(pedido.getCodigoProducto(), conexion)
                         .orElseThrow(() -> new ServicioException("Producto no encontrado: " + pedido.getCodigoProducto()));
 
-                productoDAO.incrementarStockComercial(producto.getCodigo(), pedido.getCantidad(), conexion);
+                productoDAO.incrementarStockComercial(producto.getCodigo(), cantidadRecibida, conexion);
+
+                String motivo = cantidadRecibida == pedido.getCantidad()
+                        ? "Recepción de pedido a proveedor"
+                        : "Recepción parcial/ajustada de pedido (solicitado: " + pedido.getCantidad()
+                                + ", recibido: " + cantidadRecibida + ")";
 
                 MovimientoInventario movimiento = new MovimientoInventario();
                 movimiento.setCodigoProducto(producto.getCodigo());
                 movimiento.setTipoStock(TipoStock.COMERCIAL);
                 movimiento.setTipoMovimiento(TipoMovimiento.INGRESO);
-                movimiento.setCantidad(pedido.getCantidad());
-                movimiento.setMotivo("Recepción de pedido a proveedor");
+                movimiento.setCantidad(cantidadRecibida);
+                movimiento.setMotivo(motivo);
                 movimiento.setIdPedidoProveedor(idPedido);
                 movimiento.setOrigenSistema(OrigenSistema.ESCRITORIO);
                 movimiento.setIdUsuario(idUsuario);
@@ -144,6 +151,9 @@ public class ProveedorService {
             throw new ServicioException("No se pudo conectar a la base de datos.", e);
         }
     }
+
+
+
 
     public void anularPedido(int idPedido) {
         try (Connection conexion = ConexionBD.obtenerConexion()) {

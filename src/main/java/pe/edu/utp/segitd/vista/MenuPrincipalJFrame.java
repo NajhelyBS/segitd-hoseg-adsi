@@ -3,10 +3,11 @@ package pe.edu.utp.segitd.vista;
 import pe.edu.utp.segitd.controlador.MenuPrincipalControlador;
 import pe.edu.utp.segitd.modelo.RolUsuario;
 import pe.edu.utp.segitd.modelo.Usuario;
-import pe.edu.utp.segitd.servicio.BackupService;
 import pe.edu.utp.segitd.servicio.IndicadoresDashboard;
 import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.SesionUsuario;
+import pe.edu.utp.segitd.util.AlertaStockUtil;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -24,7 +25,6 @@ import java.nio.file.Path;
 public class MenuPrincipalJFrame extends JFrame {
 
     private final MenuPrincipalControlador controlador = new MenuPrincipalControlador();
-    private final BackupService backupService = new BackupService();
 
     private final JLabel indicadorConexion = new JLabel();
     private final JLabel valorProductosActivos = new JLabel("-");
@@ -63,8 +63,9 @@ public class MenuPrincipalJFrame extends JFrame {
         this.getContentPane().setBackground(COLOR_FONDO_VENTANA);
         pack();
         setLocationRelativeTo(null);
-        actualizarPanel(); //
-        
+        actualizarPanel();
+        SwingUtilities.invokeLater(() -> AlertaStockUtil.mostrarSiHayStockCritico(this));
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -273,20 +274,23 @@ public class MenuPrincipalJFrame extends JFrame {
     }
 
     ///////////////////////////////////777
-    private JPanel construirModulos() {
+       private JPanel construirModulos() {
         JPanel panel = new JPanel(new GridLayout(2, 3, 14, 14));
         panel.setBackground(COLOR_FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
 
         Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
-        boolean esAdministrador = usuario.getRol() == RolUsuario.ADMINISTRADOR;
+        RolUsuario rol = usuario.getRol();
+        boolean admin = rol == RolUsuario.ADMINISTRADOR;
+        boolean almacen = admin || rol == RolUsuario.ENCARGADO;
+        boolean impacto = admin || rol == RolUsuario.GESTOR_IMPACTO;
 
-        panel.add(botonModulo("Gestión de productos", true, () -> new GestionProductosJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de productos", almacen, () -> new GestionProductosJFrame().setVisible(true)));
         panel.add(botonModulo("Pedidos web", true, () -> new PedidosWebJFrame().setVisible(true)));
-        panel.add(botonModulo("Despacho de lotes", true, () -> new DespachoLotesJFrame().setVisible(true)));
-        panel.add(botonModulo("Reportes de impacto", esAdministrador, () -> new ReportesImpactoJFrame().setVisible(true)));
-        panel.add(botonModulo("Pedidos a proveedores", esAdministrador, () -> new ProveedoresJFrame().setVisible(true)));
-        panel.add(botonModulo("Gestión de usuarios", esAdministrador, () -> new UsuariosJFrame().setVisible(true)));
+        panel.add(botonModulo("Despacho de lotes", impacto, () -> new DespachoLotesJFrame().setVisible(true)));
+        panel.add(botonModulo("Reportes de impacto", impacto, () -> new ReportesImpactoJFrame().setVisible(true)));
+        panel.add(botonModulo("Pedidos a proveedores", almacen, () -> new ProveedoresJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de usuarios", admin, () -> new UsuariosJFrame().setVisible(true)));
 
         return panel;
     }
@@ -417,7 +421,7 @@ public class MenuPrincipalJFrame extends JFrame {
 
     private void respaldarAhora() {
         try {
-            Path carpeta = backupService.ejecutarBackup();
+            Path carpeta = controlador.respaldarAhora();
             JOptionPane.showMessageDialog(this, "Respaldo generado en " + carpeta.toAbsolutePath(),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (ServicioException e) {
@@ -425,12 +429,9 @@ public class MenuPrincipalJFrame extends JFrame {
         }
     }
 
-    /** RNF-05: respaldo automático al cerrar si pasaron más de 24 h desde el último. */
     private void cerrarAplicacion() {
         try {
-            if (backupService.debeRespaldarAutomaticamente()) {
-                backupService.ejecutarBackup();
-            }
+            controlador.respaldarSiCorresponde();
         } catch (ServicioException e) {
             JOptionPane.showMessageDialog(this,
                     "No se pudo generar el respaldo automático: " + e.getMessage(),
