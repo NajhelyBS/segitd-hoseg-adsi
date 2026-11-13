@@ -55,7 +55,7 @@ Especificación técnica y de implementación del sistema back-office.
 Los scripts de inicialización se encuentran en la carpeta `bd-adsi/` y replican exactamente el modelo físico documentado en el informe:
 
 1. `bd-adsi/00_reiniciar.sql`: Reinicio limpio del esquema público.
-2. `bd-adsi/01_schema.sql`: Creación de las **14 tablas** (`usuario`, `cliente`, `categoria`, `coleccion`, `producto`, `venta`, `detalle_venta`, `comunidad`, `ong`, `lote_donacion`, `donacion`, `proveedor`, `pedido_proveedor`, `movimiento_inventario`), claves foráneas, restricciones `CHECK` e índices.
+2. `bd-adsi/01_esquema.sql`: Creación de las **14 tablas** (`usuario`, `cliente`, `categoria`, `coleccion`, `producto`, `venta`, `detalle_venta`, `comunidad`, `ong`, `lote_donacion`, `donacion`, `proveedor`, `pedido_proveedor`, `movimiento_inventario`), claves foráneas, restricciones `CHECK` e índices.
 3. `bd-adsi/02_datos_demo.sql`: Carga de usuarios (`admin`, `encargado`, `gestor`), catálogo inicial (incluyendo productos bajo stock mínimo como `HSG-ACC-004`), comunidades altoandinas, ONG Pachamama Raymi y proveedores.
 4. `bd-adsi/03_simular_pedido_web.sql`: Inserción de un pedido web en estado `PENDIENTE` para demostraciones en vivo.
 5. `bd-adsi/04_verificacion.sql`: Consultas rápidas de auditoría de tablas y saldos.

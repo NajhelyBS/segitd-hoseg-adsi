@@ -7,7 +7,7 @@ Back-office administrativo de **Höség Store (14-DIEZ S.A.C.)** desarrollado en
 - **Modelo físico:** 14 tablas normalizadas (`usuario`, `cliente`, `producto`, `venta`, `lote_donacion`, `ong`, etc.) [SEGITD-HOSEG.md].
 - **Scripts de inicialización (en orden):**
   1. `bd-adsi/00_reiniciar.sql`: Limpia el esquema público.
-  2. `bd-adsi/01_schema.sql`: Crea las 14 tablas y restricciones.
+  2. `bd-adsi/01_esquema.sql`: Crea las 14 tablas y restricciones.
   3. `bd-adsi/02_datos_demo.sql`: Carga usuarios (`admin`, `encargado`, `gestor`), catálogo y ONG [SEGITD-HOSEG.md].
   4. `bd-adsi/03_simular_pedido_web.sql`: Inserta un pedido web de demostración.
   5. `bd-adsi/04_verificacion.sql`: Consultas de verificación rápida.
