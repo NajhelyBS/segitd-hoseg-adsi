@@ -6,6 +6,8 @@ import pe.edu.utp.segitd.modelo.Usuario;
 import pe.edu.utp.segitd.servicio.IndicadoresDashboard;
 import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.SesionUsuario;
+import pe.edu.utp.segitd.util.AlertaStockUtil;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -61,8 +63,9 @@ public class MenuPrincipalJFrame extends JFrame {
         this.getContentPane().setBackground(COLOR_FONDO_VENTANA);
         pack();
         setLocationRelativeTo(null);
-        actualizarPanel(); //
-        
+        actualizarPanel();
+        SwingUtilities.invokeLater(() -> AlertaStockUtil.mostrarSiHayStockCritico(this));
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
