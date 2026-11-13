@@ -271,20 +271,23 @@ public class MenuPrincipalJFrame extends JFrame {
     }
 
     ///////////////////////////////////777
-    private JPanel construirModulos() {
+       private JPanel construirModulos() {
         JPanel panel = new JPanel(new GridLayout(2, 3, 14, 14));
         panel.setBackground(COLOR_FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
 
         Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
-        boolean esAdministrador = usuario.getRol() == RolUsuario.ADMINISTRADOR;
+        RolUsuario rol = usuario.getRol();
+        boolean admin = rol == RolUsuario.ADMINISTRADOR;
+        boolean almacen = admin || rol == RolUsuario.ENCARGADO;
+        boolean impacto = admin || rol == RolUsuario.GESTOR_IMPACTO;
 
-        panel.add(botonModulo("Gestión de productos", true, () -> new GestionProductosJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de productos", almacen, () -> new GestionProductosJFrame().setVisible(true)));
         panel.add(botonModulo("Pedidos web", true, () -> new PedidosWebJFrame().setVisible(true)));
-        panel.add(botonModulo("Despacho de lotes", true, () -> new DespachoLotesJFrame().setVisible(true)));
-        panel.add(botonModulo("Reportes de impacto", esAdministrador, () -> new ReportesImpactoJFrame().setVisible(true)));
-        panel.add(botonModulo("Pedidos a proveedores", esAdministrador, () -> new ProveedoresJFrame().setVisible(true)));
-        panel.add(botonModulo("Gestión de usuarios", esAdministrador, () -> new UsuariosJFrame().setVisible(true)));
+        panel.add(botonModulo("Despacho de lotes", impacto, () -> new DespachoLotesJFrame().setVisible(true)));
+        panel.add(botonModulo("Reportes de impacto", impacto, () -> new ReportesImpactoJFrame().setVisible(true)));
+        panel.add(botonModulo("Pedidos a proveedores", admin, () -> new ProveedoresJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de usuarios", admin, () -> new UsuariosJFrame().setVisible(true)));
 
         return panel;
     }

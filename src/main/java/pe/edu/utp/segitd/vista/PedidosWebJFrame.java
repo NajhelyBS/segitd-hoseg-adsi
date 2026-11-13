@@ -2,6 +2,7 @@ package pe.edu.utp.segitd.vista;
 
 import pe.edu.utp.segitd.controlador.PedidosWebControlador;
 import pe.edu.utp.segitd.modelo.DetalleVenta;
+import pe.edu.utp.segitd.util.SesionUsuario;
 import pe.edu.utp.segitd.modelo.Donacion;
 import pe.edu.utp.segitd.modelo.EstadoVenta;
 import pe.edu.utp.segitd.modelo.Venta;
@@ -268,11 +269,12 @@ public class PedidosWebJFrame extends JFrame {
 
 
     //
-        private void actualizarBotones() {
+            private void actualizarBotones() {
         Venta venta = ventaSeleccionada();
         
-        boolean sePuedeConfirmar = venta != null && venta.getEstado() == EstadoVenta.PENDIENTE;
-        boolean sePuedeAnular = venta != null && venta.getEstado() != EstadoVenta.ANULADO;
+        boolean esAdmin = SesionUsuario.obtenerInstancia().esAdministrador();
+        boolean sePuedeConfirmar = esAdmin && venta != null && venta.getEstado() == EstadoVenta.PENDIENTE;
+        boolean sePuedeAnular = esAdmin && venta != null && venta.getEstado() != EstadoVenta.ANULADO;
         boolean sePuedeEmitirBoleta = venta != null && venta.getEstado() == EstadoVenta.PAGADO;
 
         botonConfirmar.setEnabled(sePuedeConfirmar);
@@ -290,6 +292,7 @@ public class PedidosWebJFrame extends JFrame {
         
         estilizarSecundarioSegunEstado(botonAnular, COLOR_BURDEO, sePuedeAnular);
     }
+
 
     private void estilizarSecundarioSegunEstado(JButton boton, Color colorActivo, boolean habilitado) {
         if (!habilitado) {
