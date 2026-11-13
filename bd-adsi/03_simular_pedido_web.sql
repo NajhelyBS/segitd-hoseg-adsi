@@ -16,7 +16,7 @@
 
 WITH cliente_pedido AS (
     -- EDITAR: documento del cliente que compra (ver tabla cliente).
-    SELECT id FROM cliente WHERE num_doc = '45678234'
+    SELECT id FROM cliente WHERE num_doc = '72621025'
 ), lineas (codigo, cantidad) AS (
     -- EDITAR: productos y cantidades. Un producto por línea.
     -- HSG-ACC-004 tiene stock 3: al confirmar queda bajo el mínimo (CU07).

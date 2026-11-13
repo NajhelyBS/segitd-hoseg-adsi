@@ -51,6 +51,7 @@ SELECT verificacion, esperado, obtenido, esperado = obtenido AS ok
     ('Lotes con código provisional', 0,
      (SELECT COUNT(*)::int FROM lote_donacion WHERE codigo_lote NOT LIKE 'HSG-L%')),
 
-    ('Productos activos bajo stock mínimo (demo CU07)', 2,
+       ('Productos activos bajo stock mínimo (demo CU07)', 5,
      (SELECT COUNT(*)::int FROM producto WHERE activo AND stock_comercial < stock_minimo))
+
   ) AS t (verificacion, esperado, obtenido);
