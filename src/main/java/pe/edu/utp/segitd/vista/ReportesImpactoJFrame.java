@@ -13,16 +13,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-
 
 /**
  * Exportación del reporte de impacto a Excel (RF-07, sección 8 pantalla 6).
@@ -267,164 +257,20 @@ public class ReportesImpactoJFrame extends JFrame {
         }
     }
 
-        
-        private void generarCertificadoImpactoPDF() {
-        String codigoValidacion = "CERT-B-" + (System.currentTimeMillis() % 100000);
-        String fechaEmision = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        String rutaArchivo = "boletas/Certificado_Impacto_Hoseg.pdf";
+            private void generarCertificadoImpactoPDF() {
+        Comunidad comunidad = (Comunidad) comboComunidad.getSelectedItem();
+        OffsetDateTime desde = FechaUtil.inicioDelDia((Date) spinnerDesde.getValue());
+        OffsetDateTime hasta = FechaUtil.finDelDia((Date) spinnerHasta.getValue());
 
-        try (org.apache.pdfbox.pdmodel.PDDocument documento = new org.apache.pdfbox.pdmodel.PDDocument()) {
-            org.apache.pdfbox.pdmodel.PDPage pagina = new org.apache.pdfbox.pdmodel.PDPage();
-            documento.addPage(pagina);
-
-            org.apache.pdfbox.pdmodel.font.PDFont fuenteBold = new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.TIMES_BOLD);
-            org.apache.pdfbox.pdmodel.font.PDFont fuenteNormal = new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.TIMES_ROMAN);
-
-            try (org.apache.pdfbox.pdmodel.PDPageContentStream contenido = new org.apache.pdfbox.pdmodel.PDPageContentStream(documento, pagina)) {
-                contenido.setNonStrokingColor(0.96f, 0.96f, 0.95f);
-                contenido.addRect(20, 20, 572, 752);
-                contenido.fill();
-
-                contenido.setNonStrokingColor(1.0f, 1.0f, 1.0f);
-                contenido.addRect(40, 40, 532, 712);
-                contenido.fill();
-
-                contenido.setNonStrokingColor(0.17f, 0.22f, 0.20f);
-                contenido.addRect(40, 742, 532, 10);
-                contenido.fill();
-
-                contenido.beginText();
-                contenido.setFont(fuenteBold, 22);
-                contenido.setNonStrokingColor(0.10f, 0.10f, 0.10f);
-                contenido.newLineAtOffset(60, 700);
-                contenido.showText("CERTIFICADO DE IMPACTO B");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 10);
-                contenido.setNonStrokingColor(0.54f, 0.17f, 0.09f); 
-                contenido.newLineAtOffset(60, 685);
-                contenido.showText("SISTEMA DE AUDITORIA DE RESPONSABILIDAD SOCIAL - HOSEG STORE");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 12);
-                contenido.setNonStrokingColor(0.19f, 0.19f, 0.19f);
-                contenido.newLineAtOffset(60, 620);
-                contenido.showText("Por la presente, 14-DIEZ S.A.C. otorga el presente reconocimiento oficial a:");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteBold, 16);
-                contenido.setNonStrokingColor(0.17f, 0.22f, 0.20f);
-                contenido.newLineAtOffset(60, 590);
-                contenido.showText("ONG PACHAMAMA RAYMI");
-                contenido.endText();
-
-                
-                int y = 550;
-                String[] parrafos = {
-                    "Como constancia inmutable del impacto social y ecologico generado en las comunidades",
-                    "altoandinas afectadas por el friaje, mediante el despliegue logistico y la asignacion",
-                    "de prendas de abrigo de alta resistencia termica bajo el modelo dual 'Compra Uno, Dona Uno'.",
-                    "Este documento valida las metricas registradas en vivo en el Back Office corporativo."
-                };
-                for (String linea : parrafos) {
-                    contenido.beginText();
-                    contenido.setFont(fuenteNormal, 11);
-                    contenido.setNonStrokingColor(0.33f, 0.33f, 0.33f);
-                    contenido.newLineAtOffset(60, y);
-                    contenido.showText(linea);
-                    contenido.endText();
-                    y -= 18;
-                }
-
-               int productosActivos = 15; 
-                for (Window w : Window.getWindows()) {
-                    if (w instanceof MenuPrincipalJFrame && w.isVisible()) {
-                        try {
-                            java.lang.reflect.Field field = MenuPrincipalJFrame.class.getDeclaredField("valorProductosActivos");
-                            field.setAccessible(true);
-                            productosActivos = Integer.parseInt(((JLabel) field.get(w)).getText());
-                        } catch (Exception ignored) {}
-                    }
-                }
-
-                int totalLotesHistoricos = productosActivos * 2; 
-                int totalPrendasValidadas = totalLotesHistoricos * 120; 
-
-                contenido.setNonStrokingColor(0.97f, 0.97f, 0.98f);
-                contenido.addRect(60, 335, 492, 110);
-                contenido.fill();
-
-                contenido.beginText();
-                contenido.setFont(fuenteBold, 12);
-                contenido.setNonStrokingColor(0.10f, 0.10f, 0.10f);
-                contenido.newLineAtOffset(80, 425);
-                contenido.showText("METRICAS AUDITADAS DE TRIPLE IMPACTO:");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 11);
-                contenido.newLineAtOffset(80, 400);
-                contenido.showText(". Entidad Beneficiaria: ONG Pachamama Raymi");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 11);
-                contenido.newLineAtOffset(80, 380);
-                contenido.showText(". Lotes de Abrigo Auditados (Historico): " + totalLotesHistoricos + " Lotes");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 11);
-                contenido.newLineAtOffset(80, 360);
-                contenido.showText(". Total Prendas de Abrigo Entregadas : " + totalPrendasValidadas + " Unidades (Validado)");
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 10);
-                contenido.setNonStrokingColor(0.47f, 0.47f, 0.47f);
-                contenido.newLineAtOffset(60, 150);
-                contenido.showText("Fecha de Emision: " + fechaEmision);
-                contenido.endText();
-
-                contenido.beginText();
-                contenido.setFont(fuenteNormal, 10);
-                contenido.newLineAtOffset(60, 135);
-                contenido.showText("Codigo Unico de Auditoria: " + codigoValidacion);
-                contenido.endText();
-
-                String textoQR = "METRICA TRIPLE IMPACTO HOSEG\nONG: Pachamama Raymi\nCodigo: " + codigoValidacion + "\nEmision: " + fechaEmision;
-                com.google.zxing.qrcode.QRCodeWriter qrCodeWriter = new com.google.zxing.qrcode.QRCodeWriter();
-                com.google.zxing.common.BitMatrix bitMatrix = qrCodeWriter.encode(textoQR, com.google.zxing.BarcodeFormat.QR_CODE, 120, 120);
-                
-                int laAncho = bitMatrix.getWidth();
-                java.awt.image.BufferedImage bufferedImage = new java.awt.image.BufferedImage(laAncho, laAncho, java.awt.image.BufferedImage.TYPE_INT_RGB);
-                for (int xi = 0; xi < laAncho; xi++) {
-                    for (int yi = 0; yi < laAncho; yi++) {
-                        bufferedImage.setRGB(xi, yi, bitMatrix.get(xi, yi) ? 0x000000 : 0xFFFFFF);
-                    }
-                }
-                
-                org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject imagenQR = org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory.createFromImage(documento, bufferedImage);
-                contenido.drawImage(imagenQR, 430, 80, 120, 120);
-            }
-
-            File file = new File(rutaArchivo);
-            file.getParentFile().mkdirs();
-            documento.save(file);
-
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-                Desktop.getDesktop().open(file);
-                etiquetaEstado.setText("Certificado PDF emitido con éxito.");
-            } else {
-                JOptionPane.showMessageDialog(this, "Certificado PDF generado con éxito en: " + rutaArchivo);
-            }
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error al generar el documento con PDFBox: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            File file = controlador.emitirCertificado(desde, hasta, comunidad);
+            etiquetaEstado.setText("Certificado PDF emitido: " + file.getName());
+            abrirArchivo(file);
+        } catch (ServicioException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
+
+        
 
 }

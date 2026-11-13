@@ -4,6 +4,7 @@ import pe.edu.utp.segitd.modelo.Comunidad;
 import pe.edu.utp.segitd.modelo.FilaHistorialDespacho;
 import pe.edu.utp.segitd.modelo.FilaTrazabilidad;
 import pe.edu.utp.segitd.modelo.Producto;
+import pe.edu.utp.segitd.servicio.CertificadoImpactoService;
 import pe.edu.utp.segitd.servicio.ReporteService;
 import pe.edu.utp.segitd.servicio.ResumenImpacto;
 import pe.edu.utp.segitd.servicio.ServicioException;
@@ -19,6 +20,8 @@ public class ReportesImpactoControlador {
 
     private final ReporteService reporteService = new ReporteService();
     private final ExcelExporter excelExporter = new ExcelExporter();
+    private final CertificadoImpactoService certificadoService = new CertificadoImpactoService();
+
 
     public List<Comunidad> listarComunidades() {
         return reporteService.listarComunidades();
@@ -44,4 +47,9 @@ public class ReportesImpactoControlador {
         List<Producto> inventario = reporteService.listarInventario();
         return excelExporter.exportarReporteImpacto(desde, hasta, resumen, trazabilidad, historial, inventario);
     }
+
+    public File emitirCertificado(OffsetDateTime desde, OffsetDateTime hasta, Comunidad comunidad) {
+    return certificadoService.emitirCertificado(desde, hasta, comunidad);
+}
+
 }
