@@ -81,7 +81,10 @@ public class GestionProductosJFrame extends JFrame {
         panelRaiz.setBackground(COLOR_FONDO_VENTANA);
         setContentPane(panelRaiz);
 
-        setMinimumSize(new Dimension(1050, 500));
+        setPreferredSize(new Dimension(1120, 610));
+        setMinimumSize(new Dimension(960, 520));
+
+
         aplicarControlAcceso();
         pack();
         setLocationRelativeTo(null);
@@ -115,7 +118,8 @@ public class GestionProductosJFrame extends JFrame {
 
         panelTop.add(filaTitulo);
         panelTop.add(Box.createVerticalStrut(10));
-        panelTop.add(new FranjaDecorativaHoseg());
+        panelTop.add(EstilosHoseg.crearFranja());
+
 
         raiz.add(panelTop, BorderLayout.NORTH);
 
@@ -133,34 +137,30 @@ public class GestionProductosJFrame extends JFrame {
         return raiz;
     }
 
-    private JPanel construirPanelTabla() {
+        private JPanel construirPanelTabla() {
         tabla.setDefaultRenderer(Object.class, new ResaltadoStockBajoRenderer());
         tabla.setRowHeight(28);
-        
-        tabla.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabla.setSelectionBackground(new Color(0xE2, 0xE8, 0xF0));
-        tabla.setSelectionForeground(COLOR_TEXTO_MAIN);
-        tabla.setShowVerticalLines(false); 
-        tabla.setGridColor(new Color(0xE2, 0xE2, 0xE0));
-       
-       tabla.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tabla.setSelectionForeground(EstilosHoseg.TEXTO_MAIN);
+        tabla.setShowVerticalLines(false);
+        tabla.setGridColor(EstilosHoseg.BORDE_SUAVE);
+        tabla.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        if (tabla.getColumnModel().getColumnCount() >= 7) { 
-        tabla.getColumnModel().getColumn(0).setPreferredWidth(95);  // Código
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(160); // Nombre (Más ancho)
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(100); // Categoría
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(60);  // Talla
-        tabla.getColumnModel().getColumn(4).setPreferredWidth(80);  // Precio
-        tabla.getColumnModel().getColumn(5).setPreferredWidth(100); // Stock Comercial
-        tabla.getColumnModel().getColumn(6).setPreferredWidth(100); // Stock Comprometido
-        tabla.getColumnModel().getColumn(7).setPreferredWidth(100); // Stock Mínimo
-        
-    }
+        if (tabla.getColumnModel().getColumnCount() >= 8) {
+            tabla.getColumnModel().getColumn(0).setPreferredWidth(95);  // Código
+            tabla.getColumnModel().getColumn(1).setPreferredWidth(165); // Nombre
+            tabla.getColumnModel().getColumn(2).setPreferredWidth(95);  // Categoría
+            tabla.getColumnModel().getColumn(3).setPreferredWidth(60);  // Talla
+            tabla.getColumnModel().getColumn(4).setPreferredWidth(75);  // Precio
+            tabla.getColumnModel().getColumn(5).setPreferredWidth(110); // Stock Comercial
+            tabla.getColumnModel().getColumn(6).setPreferredWidth(145); // Stock Comprometido
+            tabla.getColumnModel().getColumn(7).setPreferredWidth(95);  // Stock Mínimo
+        }
 
-        //cabecera tabla
         JTableHeader header = tabla.getTableHeader();
         header.setFont(new Font("SansSerif", Font.BOLD, 12));
-        header.setBackground(COLOR_PRIMARIO);
+        header.setBackground(EstilosHoseg.PRIMARIO);
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 32));
         ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
@@ -171,40 +171,53 @@ public class GestionProductosJFrame extends JFrame {
             }
         });
 
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(COLOR_FONDO_VENTANA);
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
+        JLabel lblScrollHint = new JLabel("↔ Desliza horizontalmente para ver los saldos de stock y mínimos");
+        lblScrollHint.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        lblScrollHint.setForeground(EstilosHoseg.GRIS_TEXTO);
+        panel.add(lblScrollHint, BorderLayout.NORTH);
+
         JScrollPane scrollPane = new JScrollPane(tabla);
-        scrollPane.setBorder(new LineBorder(new Color(0xE2, 0xE2, 0xE0), 1));
+        scrollPane.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
         panel.add(scrollPane, BorderLayout.CENTER);
 
         JLabel leyenda = new JLabel("● Las filas en fondo rojizo tienen el stock comercial en el mínimo o por debajo.");
         leyenda.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        leyenda.setForeground(COLOR_BURDEO);
+        leyenda.setForeground(EstilosHoseg.BURDEO);
         panel.add(leyenda, BorderLayout.SOUTH);
 
         return panel;
     }
 
-    private JPanel construirPanelFormulario() {
-        JPanel panel = new JPanel(new BorderLayout(0, 16));
-        panel.setBackground(Color.WHITE);  
+       private JPanel construirPanelFormulario() {
+        JPanel panel = new JPanel(new BorderLayout(0, 12));
+        panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
         panel.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)));
-        
-        
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(16, 18, 16, 18)));
+
+        JLabel tituloForm = new JLabel("Ficha del Producto");
+        tituloForm.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        tituloForm.setForeground(EstilosHoseg.PRIMARIO);
+        tituloForm.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, EstilosHoseg.BORDE_SUAVE),
+                BorderFactory.createEmptyBorder(0, 0, 8, 0)));
+        panel.add(tituloForm, BorderLayout.NORTH);
+
         JScrollPane scrollForm = new JScrollPane(construirFormulario());
         scrollForm.setBorder(null);
         scrollForm.getVerticalScrollBar().setUnitIncrement(16);
-        
+
         panel.add(scrollForm, BorderLayout.CENTER);
         panel.add(construirBotones(), BorderLayout.SOUTH);
         return panel;
     }
+
 
     private JPanel construirFormulario() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -712,32 +725,6 @@ private void actualizarSugerenciaStockMinimo(String codigoProducto) {
             setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 6));
             
             return componente;
-        }
-    }
-
-
-    //CLASE FRANJA
-    private static class FranjaDecorativaHoseg extends JComponent {
-        public FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                0, 0, getWidth(), 0,
-                new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                new Color[]{
-                    new Color(0x00, 0x33, 0xAA), // Azul
-                    new Color(0x6A, 0x1B, 0x9A), // Morado
-                    new Color(0xD8, 0x1B, 0x60), // Rosa
-                    new Color(0xD3, 0x2F, 0x2F)  // Rojo
-                }
-            );
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 

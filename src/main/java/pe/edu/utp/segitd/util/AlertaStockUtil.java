@@ -3,21 +3,21 @@ package pe.edu.utp.segitd.util;
 import pe.edu.utp.segitd.modelo.Producto;
 import pe.edu.utp.segitd.servicio.InventarioService;
 import pe.edu.utp.segitd.servicio.ServicioException;
+import pe.edu.utp.segitd.vista.EstilosHoseg;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Despliega una alerta modal estilizada al Administrador cuando existen
+ * productos cuyo stock comercial alcanzó o bajó de su stock mínimo.
+ */
 public final class AlertaStockUtil {
-
-    private static final Color COLOR_PRIMARIO = new Color(0x2D, 0x3A, 0x33); // Verde Sea Pine
-    private static final Color COLOR_BURDEO = new Color(0x8C, 0x2D, 0x19);   // Terracota
-    private static final Color COLOR_FONDO = new Color(0xF5, 0xF5, 0xF3);    // Crema suave
 
     private AlertaStockUtil() {
     }
@@ -32,26 +32,55 @@ public final class AlertaStockUtil {
                 return;
             }
 
-            JPanel contenedor = new JPanel(new BorderLayout(0, 12));
-            contenedor.setBackground(COLOR_FONDO);
-            contenedor.setBorder(new EmptyBorder(8, 8, 8, 8));
+            Window ventanaPadre = padre instanceof Window w ? w : SwingUtilities.getWindowAncestor(padre);
+            JDialog dialogo = new JDialog(ventanaPadre, "SEGITD-HÖSÉG · Notificación de Stock Mínimo",
+                    Dialog.ModalityType.APPLICATION_MODAL);
+            dialogo.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            dialogo.setResizable(false);
 
-            // Encabezado visual
-            JPanel header = new JPanel(new BorderLayout(0, 4));
-            header.setBackground(COLOR_FONDO);
+            JPanel raiz = new JPanel(new BorderLayout());
+            raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
 
-            JLabel lblTitulo = new JLabel("Productos en nivel crítico de inventario");
-            lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 15));
-            lblTitulo.setForeground(COLOR_BURDEO);
+            // Franja degradada superior característica de Höség
+            raiz.add(EstilosHoseg.crearFranja(), BorderLayout.NORTH);
 
-            JLabel lblSubtitulo = new JLabel("Los siguientes artículos alcanzaron o bajaron de su stock mínimo:");
+            JPanel cuerpo = new JPanel(new BorderLayout(0, 14));
+            cuerpo.setBackground(EstilosHoseg.FONDO_VENTANA);
+            cuerpo.setBorder(new EmptyBorder(18, 22, 18, 22));
+
+            // Encabezado con título centrado y badge contador
+            JPanel header = new JPanel();
+            header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+            header.setBackground(EstilosHoseg.FONDO_VENTANA);
+
+            JLabel badge = new JLabel(criticos.size() == 1
+                    ? "  1 ARTÍCULO EN NIVEL CRÍTICO  "
+                    : "  " + criticos.size() + " ARTÍCULOS EN NIVEL CRÍTICO  ");
+            badge.setFont(new Font("SansSerif", Font.BOLD, 11));
+            badge.setOpaque(true);
+            badge.setBackground(new Color(0xFD, 0xED, 0xEC));
+            badge.setForeground(EstilosHoseg.BURDEO);
+            badge.setBorder(new LineBorder(new Color(0xF5, 0xB7, 0xB1), 1));
+            badge.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel lblTitulo = new JLabel("Alerta de Reposición de Inventario");
+            lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 17));
+            lblTitulo.setForeground(EstilosHoseg.TEXTO_MAIN);
+            lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel lblSubtitulo = new JLabel("Los siguientes productos alcanzaron o bajaron de su stock mínimo configurado:");
             lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            lblSubtitulo.setForeground(new Color(0x44, 0x44, 0x44));
+            lblSubtitulo.setForeground(EstilosHoseg.GRIS_TEXTO);
+            lblSubtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            header.add(lblTitulo, BorderLayout.NORTH);
-            header.add(lblSubtitulo, BorderLayout.SOUTH);
-            contenedor.add(header, BorderLayout.NORTH);
+            header.add(badge);
+            header.add(Box.createVerticalStrut(8));
+            header.add(lblTitulo);
+            header.add(Box.createVerticalStrut(4));
+            header.add(lblSubtitulo);
+            cuerpo.add(header, BorderLayout.NORTH);
 
+            // Tabla estilizada con scroll suave para cualquier cantidad de productos
             String[] columnas = {"Código", "Producto", "Talla", "Stock actual", "Mínimo"};
             DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
                 @Override
@@ -64,59 +93,69 @@ public final class AlertaStockUtil {
                 modelo.addRow(new Object[]{
                         p.getCodigo(),
                         p.getNombre(),
-                        p.getTalla() != null ? p.getTalla() : "-",
+                        p.getTalla() != null ? p.getTalla() : "—",
                         p.getStockComercial(),
                         p.getStockMinimo()
                 });
             }
 
             JTable tabla = new JTable(modelo);
-            tabla.setRowHeight(26);
-            tabla.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            tabla.setShowVerticalLines(false);
-            tabla.setGridColor(new Color(0xEE, 0xEE, 0xEE));
+            EstilosHoseg.estilizarTabla(tabla);
             tabla.setRowSelectionAllowed(false);
-
-            JTableHeader th = tabla.getTableHeader();
-            th.setFont(new Font("SansSerif", Font.BOLD, 12));
-            th.setBackground(COLOR_PRIMARIO);
-            th.setForeground(Color.WHITE);
-            th.setPreferredSize(new Dimension(th.getWidth(), 28));
 
             DefaultTableCellRenderer renderCentro = new DefaultTableCellRenderer();
             renderCentro.setHorizontalAlignment(SwingConstants.CENTER);
+            tabla.getColumnModel().getColumn(0).setCellRenderer(renderCentro);
             tabla.getColumnModel().getColumn(2).setCellRenderer(renderCentro);
             tabla.getColumnModel().getColumn(4).setCellRenderer(renderCentro);
 
             DefaultTableCellRenderer renderCritico = new DefaultTableCellRenderer();
             renderCritico.setHorizontalAlignment(SwingConstants.CENTER);
-            renderCritico.setForeground(COLOR_BURDEO);
+            renderCritico.setForeground(EstilosHoseg.BURDEO);
             renderCritico.setFont(new Font("SansSerif", Font.BOLD, 12));
             tabla.getColumnModel().getColumn(3).setCellRenderer(renderCritico);
 
             tabla.getColumnModel().getColumn(0).setPreferredWidth(105);
-            tabla.getColumnModel().getColumn(1).setPreferredWidth(210);
+            tabla.getColumnModel().getColumn(1).setPreferredWidth(220);
             tabla.getColumnModel().getColumn(2).setPreferredWidth(55);
             tabla.getColumnModel().getColumn(3).setPreferredWidth(85);
             tabla.getColumnModel().getColumn(4).setPreferredWidth(65);
 
             JScrollPane scroll = new JScrollPane(tabla);
-            scroll.setBorder(new LineBorder(new Color(0xD3, 0xD3, 0xD3), 1));
-            int altoTabla = Math.min(180, 32 + (criticos.size() * 26));
-            scroll.setPreferredSize(new Dimension(520, altoTabla));
-            contenedor.add(scroll, BorderLayout.CENTER);
+            scroll.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
+            scroll.getVerticalScrollBar().setUnitIncrement(16);
+            int altoTabla = Math.min(220, 34 + (criticos.size() * 26));
+            scroll.setPreferredSize(new Dimension(540, altoTabla));
+            cuerpo.add(scroll, BorderLayout.CENTER);
 
-            JLabel lblPie = new JLabel("Sugerencia: Evalúe generar una orden de reposición en «Pedidos a proveedores».");
-            lblPie.setFont(new Font("SansSerif", Font.ITALIC, 12));
-            lblPie.setForeground(COLOR_PRIMARIO);
-            contenedor.add(lblPie, BorderLayout.SOUTH);
+            // Pie con sugerencia y botón principal estilizado
+            JPanel pie = new JPanel(new BorderLayout(0, 12));
+            pie.setBackground(EstilosHoseg.FONDO_VENTANA);
 
-            JOptionPane.showMessageDialog(
-                    padre,
-                    contenedor,
-                    "SEGITD-HÖSÉG · Alerta de Stock Mínimo (CU07)",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JLabel lblSugerencia = new JLabel(
+                    "Sugerencia: Evalúe registrar una orden de compra en «Pedidos a proveedores».",
+                    SwingConstants.CENTER);
+            lblSugerencia.setFont(new Font("SansSerif", Font.ITALIC, 12));
+            lblSugerencia.setForeground(EstilosHoseg.PRIMARIO);
+
+            JButton botonCerrar = new JButton("Entendido");
+            EstilosHoseg.estilizarBotonPrincipal(botonCerrar, EstilosHoseg.PRIMARIO, EstilosHoseg.PRIMARIO_HOVER);
+            botonCerrar.addActionListener(e -> dialogo.dispose());
+
+            JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            panelBoton.setBackground(EstilosHoseg.FONDO_VENTANA);
+            panelBoton.add(botonCerrar);
+
+            pie.add(lblSugerencia, BorderLayout.NORTH);
+            pie.add(panelBoton, BorderLayout.SOUTH);
+            cuerpo.add(pie, BorderLayout.SOUTH);
+
+            raiz.add(cuerpo, BorderLayout.CENTER);
+            dialogo.setContentPane(raiz);
+            dialogo.getRootPane().setDefaultButton(botonCerrar);
+            dialogo.pack();
+            dialogo.setLocationRelativeTo(ventanaPadre);
+            dialogo.setVisible(true);
         } catch (ServicioException ignored) {
         }
     }

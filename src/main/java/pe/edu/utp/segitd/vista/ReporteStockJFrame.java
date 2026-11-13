@@ -99,40 +99,43 @@ public class ReporteStockJFrame extends JFrame {
         panelRaiz.setBackground(COLOR_FONDO_VENTANA);
         setContentPane(panelRaiz);
 
-        setMinimumSize(new Dimension(1080, 640));
+        setPreferredSize(new Dimension(960, 580));
+        setMinimumSize(new Dimension(900, 530));
         pack();
+        setSize(960, 580);
         setLocationRelativeTo(null);
+
         cargarReporte();
     }
 
-    private JPanel construirContenido() {
-        JPanel raiz = new JPanel(new BorderLayout(16, 16));
+        private JPanel construirContenido() {
+        JPanel raiz = new JPanel(new BorderLayout(14, 14));
         raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        raiz.setBackground(COLOR_FONDO_VENTANA);
+        raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
 
         JPanel panelTop = new JPanel();
         panelTop.setLayout(new BoxLayout(panelTop, BoxLayout.Y_AXIS));
-        panelTop.setBackground(COLOR_FONDO_VENTANA);
+        panelTop.setBackground(EstilosHoseg.FONDO_VENTANA);
 
-        JLabel lblTitulo = new JLabel("Reporte de Stock de Productos");
-        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblTitulo.setForeground(COLOR_TEXTO_MAIN);
-        panelTop.add(lblTitulo);
-        panelTop.add(Box.createVerticalStrut(6));
-
-        
-        panelTop.add(Box.createVerticalStrut(10));
-        panelTop.add(new FranjaDecorativaHoseg());
+        JPanel encabezado = EstilosHoseg.crearEncabezadoModulo("Reporte de Stock de Productos");
+        encabezado.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelTop.add(encabezado);
         panelTop.add(Box.createVerticalStrut(14));
-        panelTop.add(construirResumen());
+
+        JPanel resumen = construirResumen();
+        resumen.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelTop.add(resumen);
         panelTop.add(Box.createVerticalStrut(10));
-        panelTop.add(construirFiltroCategoria());
+
+        JPanel filtro = construirFiltroCategoria();
+        filtro.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelTop.add(filtro);
 
         raiz.add(panelTop, BorderLayout.NORTH);
 
         pestanas.setFont(new Font("SansSerif", Font.BOLD, 12));
         pestanas.setBackground(Color.WHITE);
-        pestanas.setForeground(COLOR_PRIMARIO);
+        pestanas.setForeground(EstilosHoseg.PRIMARIO);
         pestanas.addTab("Sin stock", construirPanelSinStock());
         pestanas.addTab("Críticos", construirPanelCriticos());
         pestanas.addTab("Disponibles", construirPanelDisponibles());
@@ -141,6 +144,7 @@ public class ReporteStockJFrame extends JFrame {
         raiz.add(construirBotonesInferiores(), BorderLayout.SOUTH);
         return raiz;
     }
+
 
     private JPanel construirResumen() {
         JPanel panel = new JPanel(new GridLayout(1, 4, 14, 0));
@@ -176,6 +180,7 @@ public class ReporteStockJFrame extends JFrame {
     private JPanel tarjetaResumen(String etiqueta, JLabel valor, Color colorAcento) {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(Color.WHITE);
+        wrapper.putClientProperty("FlatLaf.style", "arc: 14");
         wrapper.setBorder(new LineBorder(COLOR_BORDE, 1));
 
         JPanel barra = new JPanel();
@@ -474,31 +479,6 @@ public class ReporteStockJFrame extends JFrame {
                 }
             }
         });
-    }
-
-    private static class FranjaDecorativaHoseg extends JComponent {
-        FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                    0, 0, getWidth(), 0,
-                    new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                    new Color[]{
-                            new Color(0x00, 0x33, 0xAA),
-                            new Color(0x6A, 0x1B, 0x9A),
-                            new Color(0xD8, 0x1B, 0x60),
-                            new Color(0xD3, 0x2F, 0x2F)
-                    }
-            );
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-        }
     }
 
     /**

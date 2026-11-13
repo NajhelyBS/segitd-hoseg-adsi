@@ -107,12 +107,19 @@ public class PedidosWebJFrame extends JFrame {
         
         JPanel panelTopCompleto = new JPanel();
         panelTopCompleto.setLayout(new BoxLayout(panelTopCompleto, BoxLayout.Y_AXIS));
-        panelTopCompleto.setBackground(COLOR_FONDO_VENTANA);
-        panelTopCompleto.add(construirFiltros());
-        panelTopCompleto.add(Box.createVerticalStrut(12));
-        panelTopCompleto.add(new FranjaDecorativaHoseg());
-        
+        panelTopCompleto.setBackground(EstilosHoseg.FONDO_VENTANA);
+
+        JPanel encabezado = EstilosHoseg.crearEncabezadoModulo("Pedidos Web y Validación de Ventas");
+        encabezado.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelTopCompleto.add(encabezado);
+        panelTopCompleto.add(Box.createVerticalStrut(10));
+
+        JPanel filtros = construirFiltros();
+        filtros.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panelTopCompleto.add(filtros);
+
         raiz.add(panelTopCompleto, BorderLayout.NORTH);
+
 
         JSplitPane splitVertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT, construirPanelPedidos(), construirPanelDetalle());
         splitVertical.setResizeWeight(0.5);
@@ -166,8 +173,26 @@ public class PedidosWebJFrame extends JFrame {
         return panel;
     }
 
-    private JPanel construirPanelPedidos() {
+        private JPanel construirPanelPedidos() {
         estilizarTablaElegante(tablaPedidos);
+
+        tablaPedidos.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("SansSerif", Font.BOLD, 12));
+                if (!isSelected && value instanceof EstadoVenta ev) {
+                    switch (ev) {
+                        case PAGADO -> setForeground(new Color(0x2E, 0x7D, 0x32));
+                        case PENDIENTE -> setForeground(new Color(0xB2, 0x6A, 0x00));
+                        case ANULADO -> setForeground(EstilosHoseg.BURDEO);
+                    }
+                }
+                return c;
+            }
+        });
 
         tablaPedidos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaPedidos.getSelectionModel().addListSelectionListener(e -> {
@@ -178,21 +203,23 @@ public class PedidosWebJFrame extends JFrame {
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
         panel.setBorder(BorderFactory.createCompoundBorder(
                 new javax.swing.border.LineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        
+
         JLabel lblSeccion = new JLabel("Historial de Pedidos Web");
         lblSeccion.setFont(FUENTE_PANEL_TITULO);
         lblSeccion.setForeground(COLOR_TEXTO_MAIN);
         lblSeccion.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         panel.add(lblSeccion, BorderLayout.NORTH);
-        
+
         JScrollPane scrollPane = new JScrollPane(tablaPedidos);
         scrollPane.setBorder(new javax.swing.border.LineBorder(new Color(0xEE, 0xEE, 0xEE), 1));
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
+
 
     private JPanel construirPanelDetalle() {
          JPanel panelContenedorDual = new JPanel(new GridLayout(1, 2, 16, 0));
@@ -539,9 +566,10 @@ public class PedidosWebJFrame extends JFrame {
         t.setDefaultRenderer(Object.class, renderizadorPadding);
     }
 
-    private JPanel crearContenedorTarjeta(String titulo) {
+       private JPanel crearContenedorTarjeta(String titulo) {
         JPanel tarjeta = new JPanel(new BorderLayout());
         tarjeta.setBackground(Color.WHITE);
+        tarjeta.putClientProperty("FlatLaf.style", "arc: 14");
         tarjeta.setBorder(BorderFactory.createCompoundBorder(
                 new javax.swing.border.LineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
@@ -554,6 +582,7 @@ public class PedidosWebJFrame extends JFrame {
         tarjeta.add(lblTitulo, BorderLayout.NORTH);
         return tarjeta;
     }
+
 
     private void estilizarBotonPrincipal(JButton boton, Color fondo, Color hover) {
         boton.setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -621,36 +650,6 @@ public class PedidosWebJFrame extends JFrame {
                     new LineBorder(new Color(0xD3, 0xD3, 0xD3), 1),
                     BorderFactory.createEmptyBorder(4, 6, 4, 6)
             ));
-        }
-    }
-
-    //CLASE FRANJA
-    private static class FranjaDecorativaHoseg extends JComponent {
-        public FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Degradado lineal de Höség: Azul -> Morado -> Rosa -> Rojo
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                0, 0, getWidth(), 0,
-                new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                new Color[]{
-                    new Color(0x00, 0x33, 0xAA), // Azul
-                    new Color(0x6A, 0x1B, 0x9A), // Morado
-                    new Color(0xD8, 0x1B, 0x60), // Rosa / Magenta
-                    new Color(0xD3, 0x2F, 0x2F)  // Rojo
-                }
-            );
-
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 

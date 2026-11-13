@@ -1,47 +1,29 @@
 package pe.edu.utp.segitd.vista;
 
-import pe.edu.utp.segitd.modelo.Usuario;
-import pe.edu.utp.segitd.servicio.ServicioException;
-import pe.edu.utp.segitd.util.SesionUsuario;
 import pe.edu.utp.segitd.controlador.LoginControlador;
+import pe.edu.utp.segitd.servicio.ServicioException;
 
-import java.util.Arrays;
-import javax.swing.JOptionPane; 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 /**
  * Pantalla de autenticación (RF-01 / RNF-02). Valida contra Supabase con
- * SHA-256 + salt y aplica el bloqueo temporal tras 3 intentos fallidos
- * 
+ * SHA-256 + salt y aplica el bloqueo temporal tras 3 intentos fallidos.
  */
 public class LoginJFrame extends JFrame {
 
     private final LoginControlador controlador = new LoginControlador();
-     
+
     private final JTextField campoUsuario = new JTextField(15);
     private final JPasswordField campoPassword = new JPasswordField(15);
     private final JLabel etiquetaMensaje = new JLabel(" ");
     private final JButton botonIngresar = new JButton("Ingresar");
 
-    // PALETA DE COLORES HÖSÉG
-    private final Color COLOR_FONDO_IZQ = new Color(0x2D, 0x3A, 0x33);  // Verde Sea Pine
-    private final Color COLOR_FONDO_DER = new Color(0xF7, 0xF5, 0xF0);  // Beige Claro Neutro
-    private final Color COLOR_TEXTO_PRINCIPAL = new Color(0x1A, 0x1A, 0x1A); // Negro Suave
-    private final Color COLOR_TEXTO_MUTED = new Color(0x75, 0x75, 0x75);     // Gris sutil
-    private final Color COLOR_BOTON = new Color(0x8C, 0x2D, 0x19);     // Burdeo/Terracota Höség
-    private final Color COLOR_BOTON_HOVER = new Color(0xA6, 0x3A, 0x24); // Burdeo más claro 
-    private final Color COLOR_ERROR = new Color(0xB0, 0x00, 0x20);     // Rojo sutil de error
-
-    // FUENTES ELEGANTES
+    private final Color COLOR_ERROR = new Color(0xB0, 0x00, 0x20);
     private final Font FUENTE_TITULO = new Font("SansSerif", Font.BOLD, 22);
     private final Font FUENTE_SUBTITULO = new Font("SansSerif", Font.PLAIN, 12);
-    private final Font FUENTE_LABELS = new Font("SansSerif", Font.BOLD, 12);
-    private final Font FUENTE_CAMPOS = new Font("SansSerif", Font.PLAIN, 14);
-
 
 
     public LoginJFrame() {
@@ -54,22 +36,18 @@ public class LoginJFrame extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void construirInterfaz() {
-
-        //panel principal
+        private void construirInterfaz() {
         JPanel panelPrincipal = new JPanel(new GridLayout(1, 2));
-        panelPrincipal.setPreferredSize(new Dimension(680, 400)); 
+        panelPrincipal.setPreferredSize(new Dimension(680, 400));
 
-        //panel izquierdo
-        //nose si la ruta les falle a ustedes:'v
+        // Panel izquierdo
         JPanel panelIzquierdo = new PanelFondoImagen("/images/login-banner.jpg");
         panelIzquierdo.setBorder(new EmptyBorder(40, 30, 40, 30));
 
-        //logo
-        JLabel labelLogo = new JLabel("🔥"); 
+        JLabel labelLogo = new JLabel("🔥");
         labelLogo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 50));
         labelLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labelLogo.setForeground(COLOR_FONDO_DER);
+        labelLogo.setForeground(EstilosHoseg.FONDO_VENTANA);
 
         JLabel txtHoseg = new JLabel("HÖSÉG");
         txtHoseg.setFont(new Font("SansSerif", Font.BOLD, 28));
@@ -89,105 +67,70 @@ public class LoginJFrame extends JFrame {
         panelIzquierdo.add(txtEslogan);
         panelIzquierdo.add(Box.createVerticalGlue());
 
-        //panel derecho
+        // Panel derecho
         JPanel panelDerecho = new JPanel(new GridBagLayout());
-        panelDerecho.setBackground(COLOR_FONDO_DER);
+        panelDerecho.setBackground(EstilosHoseg.FONDO_VENTANA);
         panelDerecho.setBorder(new EmptyBorder(30, 40, 30, 40));
 
-
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 0, 8, 0);
+        gbc.insets = new Insets(7, 0, 7, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
-        //titulo
         JLabel titulo = new JLabel("Back office");
         titulo.setFont(FUENTE_TITULO);
-        titulo.setForeground(COLOR_TEXTO_PRINCIPAL);
+        titulo.setForeground(EstilosHoseg.TEXTO_MAIN);
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         panelDerecho.add(titulo, gbc);
 
-        //subtitulo
-         JLabel subtitulo = new JLabel("Ingresa tus credenciales para continuar");
+        JLabel subtitulo = new JLabel("Ingresa tus credenciales para continuar");
         subtitulo.setFont(FUENTE_SUBTITULO);
-        subtitulo.setForeground(COLOR_TEXTO_MUTED);
+        subtitulo.setForeground(EstilosHoseg.GRIS_TEXTO);
         gbc.gridy = 1;
         panelDerecho.add(subtitulo, gbc);
 
-        //espaciador
-         gbc.gridy = 2;
-        panelDerecho.add(Box.createVerticalStrut(10), gbc);
+        gbc.gridy = 2;
+        panelDerecho.add(Box.createVerticalStrut(8), gbc);
 
-        //usuario
         JLabel lblUsuario = new JLabel("USUARIO");
-        lblUsuario.setFont(FUENTE_LABELS);
-        lblUsuario.setForeground(COLOR_TEXTO_MUTED);
+        lblUsuario.setFont(EstilosHoseg.FUENTE_LABEL);
+        lblUsuario.setForeground(EstilosHoseg.GRIS_TEXTO);
         gbc.gridy = 3;
         panelDerecho.add(lblUsuario, gbc);
 
-        estilizarCampoTexto(campoUsuario);
+        EstilosHoseg.estilizarInput(campoUsuario);
+        campoUsuario.putClientProperty("JTextField.placeholderText", "Ej. admin, encargado o gestor");
         gbc.gridy = 4;
         panelDerecho.add(campoUsuario, gbc);
 
-        //contraseña
         JLabel lblPassword = new JLabel("CONTRASEÑA");
-        lblPassword.setFont(FUENTE_LABELS);
-        lblPassword.setForeground(COLOR_TEXTO_MUTED);
+        lblPassword.setFont(EstilosHoseg.FUENTE_LABEL);
+        lblPassword.setForeground(EstilosHoseg.GRIS_TEXTO);
         gbc.gridy = 5;
         panelDerecho.add(lblPassword, gbc);
 
-        estilizarCampoTexto(campoPassword);
+        EstilosHoseg.estilizarInput(campoPassword);
+        campoPassword.putClientProperty("JTextField.placeholderText", "••••••••");
+        campoPassword.putClientProperty("FlatLaf.style", "showRevealButton: true");
         gbc.gridy = 6;
         panelDerecho.add(campoPassword, gbc);
 
-        //mensaje
         etiquetaMensaje.setFont(new Font("SansSerif", Font.PLAIN, 11));
         etiquetaMensaje.setForeground(COLOR_ERROR);
         gbc.gridy = 7;
         panelDerecho.add(etiquetaMensaje, gbc);
 
-        //boton ingresar
-        botonIngresar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        botonIngresar.setBackground(COLOR_BOTON);
-        botonIngresar.setForeground(Color.WHITE);
-        botonIngresar.setFocusPainted(false);
-        botonIngresar.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        botonIngresar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        EstilosHoseg.estilizarBotonPrincipal(botonIngresar, EstilosHoseg.BURDEO, EstilosHoseg.BURDEO_HOVER);
         botonIngresar.setHorizontalAlignment(SwingConstants.CENTER);
-
-        //simulador
-         botonIngresar.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if(botonIngresar.isEnabled()) botonIngresar.setBackground(COLOR_BOTON_HOVER);
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if(botonIngresar.isEnabled()) botonIngresar.setBackground(COLOR_BOTON);
-            }
-        });
-
         gbc.gridy = 8;
         panelDerecho.add(botonIngresar, gbc);
 
-        //panel
         panelPrincipal.add(panelIzquierdo);
         panelPrincipal.add(panelDerecho);
 
         getRootPane().setDefaultButton(botonIngresar);
         setContentPane(panelPrincipal);
     }
-
-     private void estilizarCampoTexto(JTextField campo) {
-        campo.setFont(FUENTE_CAMPOS);
-        campo.setBackground(Color.WHITE);
-        campo.setForeground(COLOR_TEXTO_PRINCIPAL);
-        campo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xD3, 0xD3, 0xD3), 1),
-                BorderFactory.createEmptyBorder(6, 8, 6, 8)
-        ));
-    }
-
 
     private void intentarIngresar() {
         String usuario = campoUsuario.getText().trim();

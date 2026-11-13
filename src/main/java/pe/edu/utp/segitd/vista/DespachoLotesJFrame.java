@@ -101,15 +101,17 @@ public class DespachoLotesJFrame extends JFrame {
         cargarDonacionesRiesgo();
     }
 
-    private JPanel construirContenido() {
-        JPanel raiz = new JPanel(new BorderLayout());
-        raiz.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        raiz.setBackground(COLOR_FONDO_VENTANA);
+        private JPanel construirContenido() {
+        JPanel raiz = new JPanel(new BorderLayout(16, 16));
+        raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
+
+        raiz.add(EstilosHoseg.crearEncabezadoModulo("Despacho y Trazabilidad de Lotes"), BorderLayout.NORTH);
 
         JTabbedPane pestanas = new JTabbedPane();
         pestanas.setFont(FUENTE_LABEL);
         pestanas.setBackground(Color.WHITE);
-        pestanas.setForeground(COLOR_PRIMARIO);
+        pestanas.setForeground(EstilosHoseg.PRIMARIO);
 
         pestanas.addTab("Nuevo lote", construirTabNuevoLote());
         pestanas.addTab("Lotes", construirTabLotes());
@@ -117,6 +119,7 @@ public class DespachoLotesJFrame extends JFrame {
         raiz.add(pestanas, BorderLayout.CENTER);
         return raiz;
     }
+
 
     private JPanel construirTabRiesgo() {
     JPanel panel = new JPanel(new BorderLayout(12, 12));
@@ -209,6 +212,9 @@ private void abrirArchivo(File archivo) {
         panel.add(panelSelectores, BorderLayout.NORTH);
         
         estilizarTablaElegante(tablaDonacionesPendientes);
+             tablaDonacionesPendientes.getColumnModel().getColumn(0).setMaxWidth(55);
+     tablaDonacionesPendientes.getColumnModel().getColumn(0).setPreferredWidth(50);
+
         JScrollPane scroll = new JScrollPane(tablaDonacionesPendientes);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEE, 0xEE, 0xEE), 1));
         panel.add(scroll, BorderLayout.CENTER);
@@ -234,62 +240,86 @@ private void abrirArchivo(File archivo) {
         return panel;
     }
 
-    private JPanel construirPanelListaLotes() {
+       private JPanel construirPanelListaLotes() {
         estilizarTablaElegante(tablaLotes);
+
+        tablaLotes.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("SansSerif", Font.BOLD, 12));
+                if (!isSelected && value instanceof EstadoLote el) {
+                    switch (el) {
+                        case ENTREGADO -> setForeground(new Color(0x2E, 0x7D, 0x32));
+                        case EN_RUTA -> setForeground(new Color(0x00, 0x33, 0xAA));
+                        case PENDIENTE -> setForeground(new Color(0xB2, 0x6A, 0x00));
+                    }
+                }
+                return c;
+            }
+        });
+
         tablaLotes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaLotes.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarDetalleLote();
             }
         });
-        
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        
+
         JLabel lblTit = new JLabel("Historial de Lotes Generados");
-        lblTit.setFont(FUENTE_PANEL_TITULO); lblTit.setForeground(COLOR_TEXTO_MAIN);
+        lblTit.setFont(FUENTE_PANEL_TITULO);
+        lblTit.setForeground(COLOR_TEXTO_MAIN);
         lblTit.setBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0));
         panel.add(lblTit, BorderLayout.NORTH);
-        
+
         JScrollPane scroll = new JScrollPane(tablaLotes);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEE, 0xEE, 0xEE), 1));
         panel.add(scroll, BorderLayout.CENTER);
         return panel;
     }
 
-    private JPanel construirPanelDetalleLote() {
+
+       private JPanel construirPanelDetalleLote() {
         estilizarTablaElegante(tablaDonacionesLote);
-        
+
         JPanel panel = new JPanel(new BorderLayout(0, 10));
         panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        
+
         JLabel lblTit = new JLabel("Donaciones Incluidas en el Lote");
-        lblTit.setFont(FUENTE_PANEL_TITULO); lblTit.setForeground(COLOR_TEXTO_MAIN);
+        lblTit.setFont(FUENTE_PANEL_TITULO);
+        lblTit.setForeground(COLOR_TEXTO_MAIN);
         lblTit.setBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0));
         panel.add(lblTit, BorderLayout.NORTH);
-        
+
         JScrollPane scroll = new JScrollPane(tablaDonacionesLote);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(0xEE, 0xEE, 0xEE), 1));
         panel.add(scroll, BorderLayout.CENTER);
-        
+
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 4));
         panelBotones.setBackground(Color.WHITE);
-        
+
         botonEnRuta.setEnabled(false);
         botonEntregado.setEnabled(false);
-        
+
         estilizarBotonSecundario(botonEnRuta, COLOR_PRIMARIO);
-        estilizarBotonPrincipal(botonEntregado, COLOR_BURDEO, COLOR_BURDEO_HOVER); // Entregado resalta en terracota
-        
+        estilizarBotonPrincipal(botonEntregado, COLOR_BURDEO, COLOR_BURDEO_HOVER);
+
         botonEnRuta.addActionListener(e -> marcarEnRuta());
         botonEntregado.addActionListener(e -> marcarEntregado());
-        
+
         panelBotones.add(botonEnRuta);
         panelBotones.add(botonEntregado);
         panel.add(panelBotones, BorderLayout.SOUTH);
@@ -405,7 +435,7 @@ private void abrirArchivo(File archivo) {
     }
 
     private static final class ModeloDonacionesSeleccionables extends AbstractTableModel {
-        private final String[] columnas = {"", "Producto", "Cantidad", "Tipo"};
+     private final String[] columnas = {"Sel.", "Producto", "Cantidad", "Tipo"};
         private List<Donacion> donaciones = List.of();
         private final Set<Integer> seleccionadas = new HashSet<>();
 

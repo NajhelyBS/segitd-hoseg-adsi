@@ -63,27 +63,33 @@ public class ReportesImpactoJFrame extends JFrame {
         titulo.setForeground(COLOR_TEXTO_MAIN);
         panelTop.add(titulo);
         panelTop.add(Box.createVerticalStrut(10));
-        panelTop.add(new FranjaDecorativaHoseg());
+        panelTop.add(EstilosHoseg.crearFranja());
+
 
         raiz.add(panelTop, BorderLayout.NORTH);
         raiz.add(construirTarjetaFormulario(), BorderLayout.CENTER);
         return raiz;
     }
 
-    private JPanel construirTarjetaFormulario() {
-        JPanel tarjeta = new JPanel(new BorderLayout(0, 20));
+      private JPanel construirTarjetaFormulario() {
+        JPanel tarjeta = new JPanel(new BorderLayout(0, 18));
         tarjeta.setBackground(Color.WHITE);
+        tarjeta.putClientProperty("FlatLaf.style", "arc: 14");
         tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
-                BorderFactory.createEmptyBorder(24, 24, 24, 24)));
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(24, 28, 24, 28)));
+
+        JLabel lblSubtitulo = new JLabel(
+                "Seleccione el rango de fechas y la comunidad para auditar los compromisos de triple impacto.");
+        lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblSubtitulo.setForeground(EstilosHoseg.GRIS_TEXTO);
+        tarjeta.add(lblSubtitulo, BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.insets = new Insets(7, 6, 7, 6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.weightx = 0.35;
 
         comboComunidad.setRenderer(new TodasListRenderer());
         agregarCampo(form, gbc, 0, "Comunidad:", comboComunidad);
@@ -91,42 +97,48 @@ public class ReportesImpactoJFrame extends JFrame {
         agregarCampo(form, gbc, 2, "Hasta:", spinnerHasta);
         tarjeta.add(form, BorderLayout.CENTER);
 
+        // Panel inferior simétrico y centrado
         JPanel panelInferior = new JPanel();
         panelInferior.setLayout(new BoxLayout(panelInferior, BoxLayout.Y_AXIS));
         panelInferior.setBackground(Color.WHITE);
 
+        JPanel filaBotonesPrincipales = new JPanel(new GridLayout(1, 2, 12, 0));
+        filaBotonesPrincipales.setBackground(Color.WHITE);
+
         JButton botonExportar = new JButton("Exportar a Excel");
-        estilizarBotonPrincipal(botonExportar, COLOR_PRIMARIO, COLOR_PRIMARIO_HOVER);
-        botonExportar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        EstilosHoseg.estilizarBotonPrincipal(botonExportar, EstilosHoseg.PRIMARIO, EstilosHoseg.PRIMARIO_HOVER);
         botonExportar.addActionListener(e -> exportar());
-        panelInferior.add(botonExportar);
 
-        panelInferior.add(Box.createVerticalStrut(10));
-        
         JButton botonCertificado = new JButton("Emitir Certificado de Impacto B");
-        estilizarBotonPrincipal(botonCertificado, COLOR_PRIMARIO, COLOR_PRIMARIO_HOVER);
-        botonCertificado.setAlignmentX(Component.LEFT_ALIGNMENT);
+        EstilosHoseg.estilizarBotonPrincipal(botonCertificado, EstilosHoseg.BURDEO, EstilosHoseg.BURDEO_HOVER);
         botonCertificado.addActionListener(e -> generarCertificadoImpactoPDF());
-        panelInferior.add(botonCertificado);
 
-        panelInferior.add(Box.createVerticalStrut(12));
+        filaBotonesPrincipales.add(botonExportar);
+        filaBotonesPrincipales.add(botonCertificado);
+        panelInferior.add(filaBotonesPrincipales);
 
         panelInferior.add(Box.createVerticalStrut(10));
 
+        JPanel filaDashboard = new JPanel(new GridLayout(1, 1));
+        filaDashboard.setBackground(Color.WHITE);
         JButton botonDashboard = new JButton("Ver Dashboard de Ventas y Demanda");
-        estilizarBotonPrincipal(botonDashboard, COLOR_PRIMARIO, COLOR_PRIMARIO_HOVER);
-        botonDashboard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        EstilosHoseg.estilizarBotonSecundario(botonDashboard, EstilosHoseg.PRIMARIO);
         botonDashboard.addActionListener(e -> new DashboardVentasJFrame().setVisible(true));
-        panelInferior.add(botonDashboard);
+        filaDashboard.add(botonDashboard);
+        panelInferior.add(filaDashboard);
 
-        etiquetaEstado.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        panelInferior.add(Box.createVerticalStrut(10));
+
+        etiquetaEstado.setFont(new Font("SansSerif", Font.BOLD, 12));
         etiquetaEstado.setForeground(COLOR_EXITO);
-        etiquetaEstado.setAlignmentX(Component.LEFT_ALIGNMENT);
+        etiquetaEstado.setHorizontalAlignment(SwingConstants.CENTER);
+        etiquetaEstado.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelInferior.add(etiquetaEstado);
 
         tarjeta.add(panelInferior, BorderLayout.SOUTH);
         return tarjeta;
     }
+
 
 
     private void agregarCampo(JPanel panel, GridBagConstraints gbc, int fila, String etiqueta, JComponent campo) {
@@ -162,7 +174,16 @@ public class ReportesImpactoJFrame extends JFrame {
         }
     }
 
+    private void confirmarEdicionFechas() {
+        try {
+            spinnerDesde.commitEdit();
+            spinnerHasta.commitEdit();
+        } catch (java.text.ParseException ignored) {
+        }
+    }
+
     private void exportar() {
+        confirmarEdicionFechas();
         Comunidad comunidad = (Comunidad) comboComunidad.getSelectedItem();
         OffsetDateTime desde = FechaUtil.inicioDelDia((Date) spinnerDesde.getValue());
         OffsetDateTime hasta = FechaUtil.finDelDia((Date) spinnerHasta.getValue());
@@ -172,7 +193,7 @@ public class ReportesImpactoJFrame extends JFrame {
             etiquetaEstado.setText("Generado: " + archivo.getName());
             abrirArchivo(archivo);
         } catch (ServicioException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "No se pudo generar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -233,31 +254,9 @@ public class ReportesImpactoJFrame extends JFrame {
         }
     }
 
-    private static class FranjaDecorativaHoseg extends JComponent {
-        public FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                    0, 0, getWidth(), 0,
-                    new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                    new Color[]{
-                            new Color(0x00, 0x33, 0xAA),
-                            new Color(0x6A, 0x1B, 0x9A),
-                            new Color(0xD8, 0x1B, 0x60),
-                            new Color(0xD3, 0x2F, 0x2F)
-                    }
-            );
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-        }
-    }
-
-            private void generarCertificadoImpactoPDF() {
+   
+         private void generarCertificadoImpactoPDF() {
+        confirmarEdicionFechas();
         Comunidad comunidad = (Comunidad) comboComunidad.getSelectedItem();
         OffsetDateTime desde = FechaUtil.inicioDelDia((Date) spinnerDesde.getValue());
         OffsetDateTime hasta = FechaUtil.finDelDia((Date) spinnerHasta.getValue());

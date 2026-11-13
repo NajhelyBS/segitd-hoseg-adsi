@@ -62,28 +62,17 @@ public class UsuariosJFrame extends JFrame {
         limpiarFormulario();
     }
 
-    private JPanel construirContenido() {
+       private JPanel construirContenido() {
         JPanel raiz = new JPanel(new BorderLayout(16, 16));
         raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        raiz.setBackground(COLOR_FONDO_VENTANA);
+        raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
 
-        JPanel panelTop = new JPanel();
-        panelTop.setLayout(new BoxLayout(panelTop, BoxLayout.Y_AXIS));
-        panelTop.setBackground(COLOR_FONDO_VENTANA);
-
-        JLabel titulo = new JLabel("Gestión de usuarios internos");
-        titulo.setFont(new Font("SansSerif", Font.BOLD, 18));
-        titulo.setForeground(COLOR_TEXTO_MAIN);
-        panelTop.add(titulo);
-        panelTop.add(Box.createVerticalStrut(10));
-        panelTop.add(new FranjaDecorativaHoseg());
-
-        raiz.add(panelTop, BorderLayout.NORTH);
+        raiz.add(EstilosHoseg.crearEncabezadoModulo("Gestión de usuarios internos"), BorderLayout.NORTH);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, construirPanelTabla(), construirPanelFormulario());
         split.setResizeWeight(0.6);
         split.setBorder(null);
-        split.setBackground(COLOR_FONDO_VENTANA);
+        split.setBackground(EstilosHoseg.FONDO_VENTANA);
         if (split.getUI() instanceof javax.swing.plaf.basic.BasicSplitPaneUI) {
             ((javax.swing.plaf.basic.BasicSplitPaneUI) split.getUI()).getDivider().setBorder(null);
         }
@@ -92,17 +81,23 @@ public class UsuariosJFrame extends JFrame {
         return raiz;
     }
 
-    private JPanel construirPanelTabla() {
+
+       private JPanel construirPanelTabla() {
         tablaUsuarios.setRowHeight(28);
         tablaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaUsuarios.setSelectionBackground(new Color(0xE2, 0xE8, 0xF0));
-        tablaUsuarios.setSelectionForeground(COLOR_TEXTO_MAIN);
+        tablaUsuarios.setSelectionForeground(EstilosHoseg.TEXTO_MAIN);
         tablaUsuarios.setShowVerticalLines(false);
-        tablaUsuarios.setGridColor(new Color(0xE2, 0xE2, 0xE0));
+        tablaUsuarios.setGridColor(EstilosHoseg.BORDE_SUAVE);
+
+        tablaUsuarios.getColumnModel().getColumn(0).setPreferredWidth(185); // Nombre completo
+        tablaUsuarios.getColumnModel().getColumn(1).setPreferredWidth(95);  // Usuario
+        tablaUsuarios.getColumnModel().getColumn(2).setPreferredWidth(135); // Rol
+        tablaUsuarios.getColumnModel().getColumn(3).setPreferredWidth(55);  // Activo
 
         JTableHeader header = tablaUsuarios.getTableHeader();
         header.setFont(new Font("SansSerif", Font.BOLD, 12));
-        header.setBackground(COLOR_PRIMARIO);
+        header.setBackground(EstilosHoseg.PRIMARIO);
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 32));
         ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
@@ -114,26 +109,36 @@ public class UsuariosJFrame extends JFrame {
         });
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(COLOR_FONDO_VENTANA);
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
 
         JScrollPane scrollPane = new JScrollPane(tablaUsuarios);
-        scrollPane.setBorder(new LineBorder(new Color(0xE2, 0xE2, 0xE0), 1));
+        scrollPane.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel construirPanelFormulario() {
-        JPanel panel = new JPanel(new BorderLayout(0, 16));
+        JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
         panel.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(0xE2, 0xE2, 0xE0), 1),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)));
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(18, 20, 18, 20)));
+
+        JLabel tituloForm = new JLabel("Ficha del Usuario");
+        tituloForm.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        tituloForm.setForeground(EstilosHoseg.PRIMARIO);
+        tituloForm.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, EstilosHoseg.BORDE_SUAVE),
+                BorderFactory.createEmptyBorder(0, 0, 8, 0)));
+        panel.add(tituloForm, BorderLayout.NORTH);
 
         panel.add(construirFormulario(), BorderLayout.CENTER);
         panel.add(construirBotones(), BorderLayout.SOUTH);
         return panel;
     }
+
 
     private JPanel construirFormulario() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -388,27 +393,4 @@ public class UsuariosJFrame extends JFrame {
         }
     }
 
-    private static class FranjaDecorativaHoseg extends JComponent {
-        public FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                    0, 0, getWidth(), 0,
-                    new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                    new Color[]{
-                            new Color(0x00, 0x33, 0xAA),
-                            new Color(0x6A, 0x1B, 0x9A),
-                            new Color(0xD8, 0x1B, 0x60),
-                            new Color(0xD3, 0x2F, 0x2F)
-                    }
-            );
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-        }
-    }
 }

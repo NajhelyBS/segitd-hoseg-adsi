@@ -47,26 +47,37 @@ public class DashboardVentasJFrame extends JFrame {
         super("SEGITD-HÖSÉG · Dashboard de Ventas y Demanda");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setContentPane(construirContenido());
-        setMinimumSize(new Dimension(1000, 620));
+        setPreferredSize(new Dimension(980, 580));
+        setMinimumSize(new Dimension(900, 520));
+
         pack();
         setLocationRelativeTo(null);
         actualizar();
     }
 
-    private JPanel construirContenido() {
-        JPanel raiz = new JPanel(new BorderLayout(14, 14));
-        raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        raiz.setBackground(COLOR_FONDO_VENTANA);
-            JPanel panelSuperior = new JPanel(new BorderLayout(0, 14));
-            panelSuperior.setBackground(COLOR_FONDO_VENTANA);
-            
-            panelSuperior.add(new BarraDecorativaHoseg(), BorderLayout.NORTH);
-            panelSuperior.add(construirFiltros(), BorderLayout.CENTER);
+     private JPanel construirContenido() {
+     JPanel raiz = new JPanel(new BorderLayout(14, 14));
+     raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+     raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
 
-            raiz.add(panelSuperior, BorderLayout.NORTH);
-            raiz.add(construirCentro(), BorderLayout.CENTER);
-            return raiz;
-    }
+     JPanel panelSuperior = new JPanel();
+     panelSuperior.setLayout(new BoxLayout(panelSuperior, BoxLayout.Y_AXIS));
+     panelSuperior.setBackground(EstilosHoseg.FONDO_VENTANA);
+
+     JPanel encabezado = EstilosHoseg.crearEncabezadoModulo("Dashboard de Ventas y Demanda");
+     encabezado.setAlignmentX(Component.LEFT_ALIGNMENT);
+     panelSuperior.add(encabezado);
+     panelSuperior.add(Box.createVerticalStrut(10));
+
+     JPanel filtros = construirFiltros();
+     filtros.setAlignmentX(Component.LEFT_ALIGNMENT);
+     panelSuperior.add(filtros);
+
+     raiz.add(panelSuperior, BorderLayout.NORTH);
+     raiz.add(construirCentro(), BorderLayout.CENTER);
+     return raiz;
+ }
+
 
     /////
     /// 
@@ -120,35 +131,45 @@ public class DashboardVentasJFrame extends JFrame {
         return panel;
     }
 
-    private JPanel construirTarjetas() {
+        private JPanel construirTarjetas() {
         JPanel panel = new JPanel(new GridLayout(1, 4, 14, 0));
-        panel.setBackground(COLOR_FONDO_VENTANA);
-        panel.add(tarjeta("Pedidos confirmados", valorPedidos));
-        panel.add(tarjeta("Unidades vendidas", valorUnidades));
-        panel.add(tarjeta("Monto vendido (S/)", valorMonto));
-        panel.add(tarjeta("Ticket promedio (S/)", valorTicket));
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
+        panel.add(tarjeta("Pedidos confirmados", valorPedidos, new Color(0x00, 0x33, 0xAA)));
+        panel.add(tarjeta("Unidades vendidas", valorUnidades, new Color(0x6A, 0x1B, 0x9A)));
+        panel.add(tarjeta("Monto vendido (S/)", valorMonto, new Color(0x2E, 0x7D, 0x32)));
+        panel.add(tarjeta("Ticket promedio (S/)", valorTicket, EstilosHoseg.BURDEO));
         return panel;
     }
 
-    private JPanel tarjeta(String etiqueta, JLabel valor) {
-        JPanel wrapper = new JPanel(new BorderLayout(0, 6));
+    private JPanel tarjeta(String etiqueta, JLabel valor, Color acento) {
+        JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(Color.WHITE);
-        wrapper.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0), 1, true),
-                BorderFactory.createEmptyBorder(16, 12, 16, 12)));
-        
-        valor.setFont(new Font("SansSerif", Font.BOLD, 26)); 
-        valor.setForeground(COLOR_PRIMARIO); 
+        wrapper.putClientProperty("FlatLaf.style", "arc: 14");
+        wrapper.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
+
+        JPanel barraTop = new JPanel();
+        barraTop.setBackground(acento);
+        barraTop.setPreferredSize(new Dimension(10, 4));
+        wrapper.add(barraTop, BorderLayout.NORTH);
+
+        JPanel cuerpo = new JPanel(new BorderLayout(0, 6));
+        cuerpo.setBackground(Color.WHITE);
+        cuerpo.setBorder(BorderFactory.createEmptyBorder(14, 12, 14, 12));
+
+        valor.setFont(new Font("SansSerif", Font.BOLD, 25));
+        valor.setForeground(EstilosHoseg.PRIMARIO);
         valor.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         JLabel desc = new JLabel(etiqueta, SwingConstants.CENTER);
         desc.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        desc.setForeground(COLOR_GRIS_TEXTO);
-        
-        wrapper.add(valor, BorderLayout.CENTER);
-        wrapper.add(desc, BorderLayout.SOUTH);
+        desc.setForeground(EstilosHoseg.GRIS_TEXTO);
+
+        cuerpo.add(valor, BorderLayout.CENTER);
+        cuerpo.add(desc, BorderLayout.SOUTH);
+        wrapper.add(cuerpo, BorderLayout.CENTER);
         return wrapper;
     }
+
 
     private JPanel construirPanelTabla(JTable tabla) {
         tabla.setRowHeight(26);
@@ -314,55 +335,5 @@ public class DashboardVentasJFrame extends JFrame {
         }
     }
 
-private static class BarraDecorativaHoseg extends JPanel {
-    public BarraDecorativaHoseg() {
-        setPreferredSize(new Dimension(10, 6)); 
-        setOpaque(true);
-    }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-      
-        LinearGradientPaint degradadoHoseg = new LinearGradientPaint(
-            0, 0, getWidth(), 0,
-            new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-            new Color[]{
-                new Color(0x00, 0x33, 0xAA), // Azul
-                new Color(0x6A, 0x1B, 0x9A), // Morado
-                new Color(0xD8, 0x1B, 0x60), // Rosa
-                new Color(0xD3, 0x2F, 0x2F)  // Rojo
-            }
-        );
-        g2d.setPaint(degradadoHoseg);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-    }
-}
-
-
-private JPanel crearTarjetaMetrica(String titulo, String valor) {
-    JPanel tarjeta = new JPanel(new BorderLayout(5, 5));
-    tarjeta.setBackground(Color.WHITE);
-    // Borde gris suave y redondeado muy estético
-    tarjeta.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0), 1, true),
-            BorderFactory.createEmptyBorder(12, 16, 12, 16)));
-    
-    JLabel lblTitulo = new JLabel(titulo, SwingConstants.CENTER);
-    lblTitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
-    lblTitulo.setForeground(new Color(0x55, 0x55, 0x55)); // Gris elegante
-    
-    JLabel lblValor = new JLabel(valor, SwingConstants.CENTER);
-    lblValor.setFont(new Font("SansSerif", Font.BOLD, 22)); // Número grande
-    lblValor.setForeground(new Color(0x2D, 0x3A, 0x33));  // Verde Sea Pine de Höség
-    
-    tarjeta.add(lblValor, BorderLayout.CENTER);
-    tarjeta.add(lblTitulo, BorderLayout.SOUTH);
-    
-    return tarjeta;
-}
-    
 }

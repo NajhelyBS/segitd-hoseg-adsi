@@ -9,7 +9,13 @@ import pe.edu.utp.segitd.servicio.ServicioException;
 import pe.edu.utp.segitd.util.Validador;
 import pe.edu.utp.segitd.util.SesionUsuario;
 
-
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.SwingConstants;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font; 
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -69,89 +75,140 @@ public class ProveedoresJFrame extends JFrame {
         super("SEGITD-HÖSÉG · Proveedores");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setContentPane(construirContenido());
-        setMinimumSize(new Dimension(980, 600));
+        setPreferredSize(new Dimension(960, 580));
+        setMinimumSize(new Dimension(880, 520));
         pack();
+        setSize(960, 580);
         setLocationRelativeTo(null);
+
         cargarProveedores();
         cargarProductosCombo();
         cargarPedidos();
     }
 
      private JPanel construirContenido() {
-     JPanel raiz = new JPanel(new BorderLayout());
-     raiz.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-     boolean esAdmin = SesionUsuario.obtenerInstancia().esAdministrador();
-     JTabbedPane pestanas = new JTabbedPane();
-     if (esAdmin) {
-         pestanas.addTab("Proveedores", construirTabProveedores());
-     }
-     pestanas.addTab("Pedidos de reposición", construirTabPedidos());
-     raiz.add(pestanas, BorderLayout.CENTER);
-     return raiz;
- }
+        JPanel raiz = new JPanel(new BorderLayout(16, 16));
+        raiz.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        raiz.setBackground(EstilosHoseg.FONDO_VENTANA);
 
+        raiz.add(EstilosHoseg.crearEncabezadoModulo("Proveedores y Abastecimiento"), BorderLayout.NORTH);
+
+        boolean esAdmin = SesionUsuario.obtenerInstancia().esAdministrador();
+        JTabbedPane pestanas = new JTabbedPane();
+        pestanas.setFont(EstilosHoseg.FUENTE_LABEL);
+        pestanas.setBackground(Color.WHITE);
+        pestanas.setForeground(EstilosHoseg.PRIMARIO);
+
+        if (esAdmin) {
+            pestanas.addTab("Proveedores", construirTabProveedores());
+        }
+        pestanas.addTab("Pedidos de reposición", construirTabPedidos());
+        raiz.add(pestanas, BorderLayout.CENTER);
+        return raiz;
+    }
 
     // ---------- Proveedores ----------
 
     private JPanel construirTabProveedores() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        JPanel panel = new JPanel(new BorderLayout(14, 14));
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
 
+        // Tarjeta superior: tabla de talleres
+        EstilosHoseg.estilizarTabla(tablaProveedores);
         tablaProveedores.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaProveedores.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tablaProveedores.getSelectedRow() >= 0) {
                 cargarFormularioProveedor(modeloProveedores.obtener(tablaProveedores.convertRowIndexToModel(tablaProveedores.getSelectedRow())));
             }
         });
-        panel.add(new JScrollPane(tablaProveedores), BorderLayout.CENTER);
+
+        JPanel tarjetaTabla = new JPanel(new BorderLayout(0, 8));
+        tarjetaTabla.setBackground(Color.WHITE);
+        tarjetaTabla.putClientProperty("FlatLaf.style", "arc: 14");
+        tarjetaTabla.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(14, 16, 14, 16)));
+
+        JLabel lblLista = new JLabel("Directorio de Talleres y Proveedores Activos");
+        lblLista.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        lblLista.setForeground(EstilosHoseg.TEXTO_MAIN);
+        tarjetaTabla.add(lblLista, BorderLayout.NORTH);
+
+        JScrollPane scrollTabla = new JScrollPane(tablaProveedores);
+        scrollTabla.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
+        tarjetaTabla.add(scrollTabla, BorderLayout.CENTER);
+        panel.add(tarjetaTabla, BorderLayout.CENTER);
+
+        // Tarjeta inferior: formulario de registro / edición
+        JPanel tarjetaForm = new JPanel(new BorderLayout(0, 12));
+        tarjetaForm.setBackground(Color.WHITE);
+        tarjetaForm.putClientProperty("FlatLaf.style", "arc: 14");
+        tarjetaForm.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(16, 20, 16, 20)));
+
+        JLabel lblForm = new JLabel("Ficha del Proveedor");
+        lblForm.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        lblForm.setForeground(EstilosHoseg.PRIMARIO);
+        tarjetaForm.add(lblForm, BorderLayout.NORTH);
 
         JPanel panelFormulario = new JPanel(new GridBagLayout());
+        panelFormulario.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 8, 5, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
 
-        gbc.gridy = 0;
-        panelFormulario.add(new JLabel("Nombre del taller:"), gbc);
-        gbc.gridx = 1;
-        panelFormulario.add(txtNombreTaller, gbc);
+        EstilosHoseg.estilizarInput(txtNombreTaller);
+        EstilosHoseg.estilizarInput(txtRuc);
+        EstilosHoseg.estilizarInput(txtContacto);
+        EstilosHoseg.estilizarInput(txtTelefono);
 
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        panelFormulario.add(new JLabel("RUC:"), gbc);
-        gbc.gridx = 1;
-        panelFormulario.add(txtRuc, gbc);
+        agregarFilaForm(panelFormulario, gbc, 0, "Nombre del taller:", txtNombreTaller, "RUC:", txtRuc);
+        agregarFilaForm(panelFormulario, gbc, 1, "Contacto:", txtContacto, "Teléfono:", txtTelefono);
 
-        gbc.gridy = 2;
-        gbc.gridx = 0;
-        panelFormulario.add(new JLabel("Contacto:"), gbc);
-        gbc.gridx = 1;
-        panelFormulario.add(txtContacto, gbc);
+        tarjetaForm.add(panelFormulario, BorderLayout.CENTER);
 
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        panelFormulario.add(new JLabel("Teléfono:"), gbc);
-        gbc.gridx = 1;
-        panelFormulario.add(txtTelefono, gbc);
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        panelBotones.setBackground(Color.WHITE);
 
-        JPanel panelBotones = new JPanel(new GridLayout(1, 3, 8, 0));
         JButton botonNuevo = new JButton("Nuevo");
+        EstilosHoseg.estilizarBotonSecundario(botonNuevo, EstilosHoseg.PRIMARIO);
         botonNuevo.addActionListener(e -> limpiarFormularioProveedor());
+
         JButton botonGuardar = new JButton("Guardar");
+        EstilosHoseg.estilizarBotonPrincipal(botonGuardar, EstilosHoseg.PRIMARIO, EstilosHoseg.PRIMARIO_HOVER);
         botonGuardar.addActionListener(e -> guardarProveedor());
+
         JButton botonBaja = new JButton("Dar de baja");
+        EstilosHoseg.estilizarBotonSecundario(botonBaja, EstilosHoseg.BURDEO);
         botonBaja.addActionListener(e -> darDeBajaProveedor());
+
         panelBotones.add(botonNuevo);
-        panelBotones.add(botonGuardar);
         panelBotones.add(botonBaja);
+        panelBotones.add(botonGuardar);
+        tarjetaForm.add(panelBotones, BorderLayout.SOUTH);
 
-        gbc.gridy = 4;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        panelFormulario.add(panelBotones, gbc);
-
-        panel.add(panelFormulario, BorderLayout.SOUTH);
+        panel.add(tarjetaForm, BorderLayout.SOUTH);
         return panel;
+    }
+
+    private void agregarFilaForm(JPanel panel, GridBagConstraints gbc, int fila,
+                                 String etiq1, JComponent campo1, String etiq2, JComponent campo2) {
+        gbc.gridy = fila;
+        gbc.gridx = 0; gbc.weightx = 0.12;
+        JLabel l1 = new JLabel(etiq1); l1.setFont(EstilosHoseg.FUENTE_LABEL); l1.setForeground(EstilosHoseg.GRIS_TEXTO);
+        panel.add(l1, gbc);
+
+        gbc.gridx = 1; gbc.weightx = 0.38;
+        panel.add(campo1, gbc);
+
+        gbc.gridx = 2; gbc.weightx = 0.12;
+        JLabel l2 = new JLabel(etiq2); l2.setFont(EstilosHoseg.FUENTE_LABEL); l2.setForeground(EstilosHoseg.GRIS_TEXTO);
+        panel.add(l2, gbc);
+
+        gbc.gridx = 3; gbc.weightx = 0.38;
+        panel.add(campo2, gbc);
     }
 
     private void cargarProveedores() {
@@ -225,22 +282,48 @@ public class ProveedoresJFrame extends JFrame {
 
     // ---------- Pedidos ----------
 
-     private JPanel construirTabPedidos() {
-     JPanel panel = new JPanel(new BorderLayout(10, 10));
-     panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
+        private JPanel construirTabPedidos() {
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-     if (SesionUsuario.obtenerInstancia().esAdministrador()) {
-         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, construirPanelListaPedidos(), construirPanelNuevoPedido());
-         split.setResizeWeight(0.65);
-         panel.add(split, BorderLayout.CENTER);
-     } else {
-         panel.add(construirPanelListaPedidos(), BorderLayout.CENTER);
-     }
-     return panel;
- }
-
+        if (SesionUsuario.obtenerInstancia().esAdministrador()) {
+            JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                    construirPanelListaPedidos(), construirPanelNuevoPedido());
+            split.setResizeWeight(0.66);
+            split.setDividerLocation(245);
+            split.setBorder(null);
+            split.setBackground(EstilosHoseg.FONDO_VENTANA);
+            if (split.getUI() instanceof javax.swing.plaf.basic.BasicSplitPaneUI ui) {
+                ui.getDivider().setBorder(null);
+            }
+            panel.add(split, BorderLayout.CENTER);
+        } else {
+            panel.add(construirPanelListaPedidos(), BorderLayout.CENTER);
+        }
+        return panel;
+    }
 
     private JPanel construirPanelListaPedidos() {
+        EstilosHoseg.estilizarTabla(tablaPedidos);
+        tablaPedidos.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("SansSerif", Font.BOLD, 12));
+                if (!isSelected && value instanceof EstadoPedidoProveedor ep) {
+                    switch (ep) {
+                        case RECIBIDO -> setForeground(new Color(0x2E, 0x7D, 0x32));
+                        case SOLICITADO -> setForeground(new Color(0xB2, 0x6A, 0x00));
+                        case ANULADO -> setForeground(EstilosHoseg.BURDEO);
+                    }
+                }
+                return c;
+            }
+        });
+
         tablaPedidos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tablaPedidos.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -249,59 +332,85 @@ public class ProveedoresJFrame extends JFrame {
         });
 
         JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBorder(BorderFactory.createTitledBorder("Pedidos"));
-        panel.add(new JScrollPane(tablaPedidos), BorderLayout.CENTER);
+        panel.setBackground(Color.WHITE);
+        panel.putClientProperty("FlatLaf.style", "arc: 14");
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(12, 16, 12, 16)));
 
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        // Cabecera con título a la izquierda y botones a la derecha para dar más espacio a la tabla
+        JPanel cabecera = new JPanel(new BorderLayout());
+        cabecera.setBackground(Color.WHITE);
+
+        JLabel lblTitulo = new JLabel("Órdenes de Reposición a Talleres");
+        lblTitulo.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        lblTitulo.setForeground(EstilosHoseg.TEXTO_MAIN);
+        cabecera.add(lblTitulo, BorderLayout.WEST);
+
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        panelBotones.setBackground(Color.WHITE);
+
+        EstilosHoseg.estilizarBotonPrincipal(botonRecibido, EstilosHoseg.PRIMARIO, EstilosHoseg.PRIMARIO_HOVER);
+        EstilosHoseg.estilizarBotonSecundario(botonAnularPedido, EstilosHoseg.BURDEO);
+
         botonRecibido.setEnabled(false);
         botonAnularPedido.setEnabled(false);
         botonRecibido.addActionListener(e -> marcarRecibido());
         botonAnularPedido.addActionListener(e -> anularPedido());
-        panelBotones.add(botonRecibido);
+
         panelBotones.add(botonAnularPedido);
-        panel.add(panelBotones, BorderLayout.SOUTH);
+        panelBotones.add(botonRecibido);
+        cabecera.add(panelBotones, BorderLayout.EAST);
+
+        panel.add(cabecera, BorderLayout.NORTH);
+
+        JScrollPane scroll = new JScrollPane(tablaPedidos);
+        scroll.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
+        panel.add(scroll, BorderLayout.CENTER);
         return panel;
     }
 
+
     private JPanel construirPanelNuevoPedido() {
+        JPanel tarjeta = new JPanel(new BorderLayout(0, 10));
+        tarjeta.setBackground(Color.WHITE);
+        tarjeta.putClientProperty("FlatLaf.style", "arc: 14");
+        tarjeta.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(14, 18, 14, 18)));
+
+        JLabel lblTitulo = new JLabel("Registrar Nueva Orden de Abastecimiento");
+        lblTitulo.setFont(EstilosHoseg.FUENTE_SUBTITULO);
+        lblTitulo.setForeground(EstilosHoseg.PRIMARIO);
+        tarjeta.add(lblTitulo, BorderLayout.NORTH);
+
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Nuevo pedido"));
+        panel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.insets = new Insets(5, 8, 5, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
 
-        gbc.gridy = 0;
-        panel.add(new JLabel("Proveedor:"), gbc);
-        gbc.gridx = 1;
-        panel.add(comboProveedorPedido, gbc);
+        comboProveedorPedido.setFont(EstilosHoseg.FUENTE_INPUT);
+        comboProveedorPedido.setBackground(Color.WHITE);
+        comboProductoPedido.setFont(EstilosHoseg.FUENTE_INPUT);
+        comboProductoPedido.setBackground(Color.WHITE);
+        EstilosHoseg.estilizarInput(txtDescripcionPedido);
+        EstilosHoseg.estilizarInput((JComponent) spinnerCantidadPedido.getEditor());
 
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        panel.add(new JLabel("Producto a reponer:"), gbc);
-        gbc.gridx = 1;
-        panel.add(comboProductoPedido, gbc);
+        agregarFilaForm(panel, gbc, 0, "Proveedor:", comboProveedorPedido, "Producto:", comboProductoPedido);
+        agregarFilaForm(panel, gbc, 1, "Descripción:", txtDescripcionPedido, "Cantidad:", spinnerCantidadPedido);
 
-        gbc.gridy = 2;
-        gbc.gridx = 0;
-        panel.add(new JLabel("Descripción:"), gbc);
-        gbc.gridx = 1;
-        panel.add(txtDescripcionPedido, gbc);
+        tarjeta.add(panel, BorderLayout.CENTER);
 
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        panel.add(new JLabel("Cantidad:"), gbc);
-        gbc.gridx = 1;
-        panel.add(spinnerCantidadPedido, gbc);
-
+        JPanel pie = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        pie.setBackground(Color.WHITE);
         JButton botonRegistrar = new JButton("Registrar pedido");
+        EstilosHoseg.estilizarBotonPrincipal(botonRegistrar, EstilosHoseg.PRIMARIO, EstilosHoseg.PRIMARIO_HOVER);
         botonRegistrar.addActionListener(e -> registrarPedido());
-        gbc.gridy = 4;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        panel.add(botonRegistrar, gbc);
+        pie.add(botonRegistrar);
+        tarjeta.add(pie, BorderLayout.SOUTH);
 
-        return panel;
+        return tarjeta;
     }
 
     private void cargarProductosCombo() {
@@ -422,7 +531,7 @@ public class ProveedoresJFrame extends JFrame {
      }
  }
 
- 
+
     private void anularPedido() {
         PedidoProveedor pedido = pedidoSeleccionado();
         if (pedido == null) {

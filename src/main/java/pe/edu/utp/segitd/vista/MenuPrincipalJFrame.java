@@ -86,7 +86,8 @@ public class MenuPrincipalJFrame extends JFrame {
         contenedorNorte.add(construirEncabezado());
         contenedorNorte.add(Box.createVerticalStrut(14));
         
-        contenedorNorte.add(new FranjaDecorativaHoseg());
+        contenedorNorte.add(EstilosHoseg.crearFranja());
+
         
         raiz.add(contenedorNorte, BorderLayout.NORTH);
         raiz.add(construirIndicadores(), BorderLayout.CENTER);
@@ -102,6 +103,7 @@ public class MenuPrincipalJFrame extends JFrame {
 
         //titulo izq
         JLabel titulo = new JLabel("Höség Store — Back office");
+        titulo.setFont(EstilosHoseg.FUENTE_TITULO);
         titulo.setForeground(COLOR_TEXTO_MAIN);
         encabezado.add(titulo, BorderLayout.WEST);
 
@@ -139,144 +141,155 @@ public class MenuPrincipalJFrame extends JFrame {
         return encabezado;
     }
 
-    private JPanel construirIndicadores() {
-
+   private JPanel construirIndicadores() {
         JPanel contenedorControles = new JPanel(new BorderLayout(16, 0));
-        contenedorControles.setBackground(COLOR_FONDO_VENTANA);
+        contenedorControles.setBackground(EstilosHoseg.FONDO_VENTANA);
 
         JPanel panelTarjetasIzquierda = new JPanel(new GridLayout(1, 3, 14, 0));
-        panelTarjetasIzquierda.setBackground(COLOR_FONDO_VENTANA);
-        
-        panelTarjetasIzquierda.add(tarjeta("Productos activos", valorProductosActivos, new Color(0x00, 0x33, 0xAA))); // Barra Azul
-        panelTarjetasIzquierda.add(tarjeta("Pedidos web pendientes", valorPedidosPendientes, new Color(0x6A, 0x1B, 0x9A))); // Barra Morada
-        panelTarjetasIzquierda.add(tarjeta("Donaciones por asignar", valorDonacionesPendientes, new Color(0x2E, 0x7D, 0x32))); // Barra Verde
-        
+        panelTarjetasIzquierda.setBackground(EstilosHoseg.FONDO_VENTANA);
+
+        panelTarjetasIzquierda.add(tarjeta("CATÁLOGO", "Productos activos", "Disponibles en tienda",
+                valorProductosActivos, new Color(0x00, 0x33, 0xAA)));
+        panelTarjetasIzquierda.add(tarjeta("VENTAS WEB", "Pedidos pendientes", "Esperando confirmación",
+                valorPedidosPendientes, new Color(0x6A, 0x1B, 0x9A)));
+        panelTarjetasIzquierda.add(tarjeta("IMPACTO SOCIAL", "Donaciones por asignar", "Listas para armar lote",
+                valorDonacionesPendientes, new Color(0x2E, 0x7D, 0x32)));
+
         contenedorControles.add(panelTarjetasIzquierda, BorderLayout.CENTER);
-        
-        // Lado Derecho
+
+        // Panel derecho: Estado de Almacén y Logística con esquinas redondeadas
         JPanel panelGraficoDerecha = new JPanel(new BorderLayout());
         panelGraficoDerecha.setBackground(Color.WHITE);
+        panelGraficoDerecha.putClientProperty("FlatLaf.style", "arc: 14");
         panelGraficoDerecha.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(0xE5, 0xE5, 0xE3), 1),
-                BorderFactory.createEmptyBorder(12, 16, 12, 16)));
+                new LineBorder(EstilosHoseg.BORDE_SUAVE, 1),
+                BorderFactory.createEmptyBorder(14, 18, 14, 18)));
 
-                JPanel filaTituloGrafico = new JPanel();
-        filaTituloGrafico.setLayout(new BoxLayout(filaTituloGrafico, BoxLayout.Y_AXIS));
-        filaTituloGrafico.setBackground(Color.WHITE);
-
-        JLabel tituloGrafico = new JLabel("Estado de Almacén y Logística", SwingConstants.LEFT);
+               JLabel tituloGrafico = new JLabel("Estado de Almacén y Logística");
         tituloGrafico.setFont(new Font("SansSerif", Font.BOLD, 13));
-        tituloGrafico.setForeground(COLOR_TEXTO_MAIN);
-        tituloGrafico.setAlignmentX(Component.LEFT_ALIGNMENT);
-        filaTituloGrafico.add(tituloGrafico);
-        filaTituloGrafico.add(Box.createVerticalStrut(6));
-
-        JPanel filaBotonDetalle = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        filaBotonDetalle.setBackground(Color.WHITE);
-        filaBotonDetalle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JButton botonVerReporteStock = new JButton("Reporte de stock");
-        botonVerReporteStock.setFont(new Font("SansSerif", Font.BOLD, 11));
-        botonVerReporteStock.setForeground(COLOR_PRIMARIO);
-        botonVerReporteStock.setBackground(Color.WHITE);
-        botonVerReporteStock.setFocusPainted(false);
-        botonVerReporteStock.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        botonVerReporteStock.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_PRIMARIO, 1),
-                BorderFactory.createEmptyBorder(3, 10, 3, 10)));
-        botonVerReporteStock.addActionListener(e -> new ReporteStockJFrame().setVisible(true));
-        botonVerReporteStock.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                botonVerReporteStock.setBackground(COLOR_PRIMARIO);
-                botonVerReporteStock.setForeground(Color.WHITE);
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                botonVerReporteStock.setBackground(Color.WHITE);
-                botonVerReporteStock.setForeground(COLOR_PRIMARIO);
-            }
-        });
-        filaBotonDetalle.add(botonVerReporteStock);
-        filaTituloGrafico.add(filaBotonDetalle);
-
-        panelGraficoDerecha.add(filaTituloGrafico, BorderLayout.NORTH);
+        tituloGrafico.setForeground(EstilosHoseg.TEXTO_MAIN);
+        panelGraficoDerecha.add(tituloGrafico, BorderLayout.NORTH);
 
         JPanel cuerpoGrafico = new JPanel(new GridLayout(2, 1, 0, 10));
         cuerpoGrafico.setBackground(Color.WHITE);
-        cuerpoGrafico.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
+        cuerpoGrafico.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
 
-        barraStockCritico.setForeground(COLOR_BURDEO);
-        barraStockCritico.setBackground(new Color(0xF5, 0xF5, 0xF5));
+        barraStockCritico.setForeground(EstilosHoseg.BURDEO);
+        barraStockCritico.setBackground(new Color(0xF2, 0xF2, 0xF0));
         barraStockCritico.setBorderPainted(false);
-        
+        barraStockCritico.setPreferredSize(new Dimension(120, 10));
+
         barraLotesRuta.setForeground(new Color(0x00, 0x33, 0xAA));
-        barraLotesRuta.setBackground(new Color(0xF5, 0xF5, 0xF5));
+        barraLotesRuta.setBackground(new Color(0xF2, 0xF2, 0xF0));
         barraLotesRuta.setBorderPainted(false);
-        
+        barraLotesRuta.setPreferredSize(new Dimension(120, 10));
+
         JPanel fila1 = new JPanel(new BorderLayout(10, 0));
         fila1.setBackground(Color.WHITE);
-        JLabel lblEtiq1 = new JLabel("Productos Críticos:");
+        JLabel lblEtiq1 = new JLabel("Productos críticos:");
         lblEtiq1.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblEtiq1.setPreferredSize(new Dimension(110, 20));
-        lblNumStockCritico.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblEtiq1.setPreferredSize(new Dimension(115, 20));
+        lblNumStockCritico.setFont(new Font("SansSerif", Font.BOLD, 13));
+        lblNumStockCritico.setForeground(EstilosHoseg.BURDEO);
         fila1.add(lblEtiq1, BorderLayout.WEST);
         fila1.add(barraStockCritico, BorderLayout.CENTER);
         fila1.add(lblNumStockCritico, BorderLayout.EAST);
-        
+
         JPanel fila2 = new JPanel(new BorderLayout(10, 0));
         fila2.setBackground(Color.WHITE);
-        JLabel lblEtiq2 = new JLabel("Lotes en Ruta:");
+        JLabel lblEtiq2 = new JLabel("Lotes en ruta:");
         lblEtiq2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblEtiq2.setPreferredSize(new Dimension(110, 20));
-        lblNumLotesRuta.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblEtiq2.setPreferredSize(new Dimension(115, 20));
+        lblNumLotesRuta.setFont(new Font("SansSerif", Font.BOLD, 13));
+        lblNumLotesRuta.setForeground(new Color(0x00, 0x33, 0xAA));
         fila2.add(lblEtiq2, BorderLayout.WEST);
         fila2.add(barraLotesRuta, BorderLayout.CENTER);
         fila2.add(lblNumLotesRuta, BorderLayout.EAST);
 
         cuerpoGrafico.add(fila1);
         cuerpoGrafico.add(fila2);
-        
         panelGraficoDerecha.add(cuerpoGrafico, BorderLayout.CENTER);
-           panelGraficoDerecha.setPreferredSize(new Dimension(320, 128));
-        
+
+        JButton botonVerReporteStock = new JButton("Ver reporte de stock detallado");
+        botonVerReporteStock.setFont(new Font("SansSerif", Font.BOLD, 11));
+        botonVerReporteStock.setForeground(EstilosHoseg.PRIMARIO);
+        botonVerReporteStock.setBackground(Color.WHITE);
+        botonVerReporteStock.setFocusPainted(false);
+        botonVerReporteStock.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        botonVerReporteStock.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(EstilosHoseg.PRIMARIO, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        botonVerReporteStock.addActionListener(e -> new ReporteStockJFrame().setVisible(true));
+        botonVerReporteStock.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                botonVerReporteStock.setBackground(EstilosHoseg.PRIMARIO);
+                botonVerReporteStock.setForeground(Color.WHITE);
+            }
+            @Override public void mouseExited(MouseEvent e) {
+                botonVerReporteStock.setBackground(Color.WHITE);
+                botonVerReporteStock.setForeground(EstilosHoseg.PRIMARIO);
+            }
+        });
+        panelGraficoDerecha.add(botonVerReporteStock, BorderLayout.SOUTH);
+        panelGraficoDerecha.setPreferredSize(new Dimension(340, 155));
+
         contenedorControles.add(panelGraficoDerecha, BorderLayout.EAST);
         return contenedorControles;
     }
 
-    private JPanel tarjeta(String etiqueta, JLabel valor, Color colorAcento) {
+
+     private JPanel tarjeta(String categoria, String etiqueta, String subtitulo, JLabel valor, Color colorAcento) {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(Color.WHITE);
-        wrapper.setBorder(new LineBorder(new Color(0xE5, 0xE5, 0xE3), 1));
+        wrapper.putClientProperty("FlatLaf.style", "arc: 14");
+        wrapper.setBorder(new LineBorder(EstilosHoseg.BORDE_SUAVE, 1));
 
-        JPanel barraInferior = new JPanel();
-        barraInferior.setBackground(colorAcento);
-        barraInferior.setPreferredSize(new Dimension(10, 4));
-        wrapper.add(barraInferior, BorderLayout.SOUTH);
+        JPanel barraSuperior = new JPanel();
+        barraSuperior.setBackground(colorAcento);
+        barraSuperior.setPreferredSize(new Dimension(10, 4));
+        wrapper.add(barraSuperior, BorderLayout.NORTH);
 
-        JPanel cuerpoTarjeta = new JPanel(new BorderLayout(6, 6));
+        JPanel cuerpoTarjeta = new JPanel();
+        cuerpoTarjeta.setLayout(new BoxLayout(cuerpoTarjeta, BoxLayout.Y_AXIS));
         cuerpoTarjeta.setBackground(Color.WHITE);
-        cuerpoTarjeta.setBorder(BorderFactory.createEmptyBorder(16, 10, 12, 10));
+        cuerpoTarjeta.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
 
-        valor.setFont(FUENTE_INDICADOR_NUM);
-        valor.setForeground(COLOR_PRIMARIO);
-        valor.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        JLabel descripcion = new JLabel("<html><center>" + etiqueta + "</center></html>", SwingConstants.CENTER);
-        descripcion.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        descripcion.setForeground(COLOR_GRIS_TEXTO);
-        
-        cuerpoTarjeta.add(valor, BorderLayout.CENTER);
-        cuerpoTarjeta.add(descripcion, BorderLayout.SOUTH);
-        
+        JLabel lblCat = new JLabel("● " + categoria);
+        lblCat.setFont(new Font("SansSerif", Font.BOLD, 10));
+        lblCat.setForeground(colorAcento);
+        lblCat.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        valor.setFont(new Font("SansSerif", Font.BOLD, 34));
+        valor.setForeground(EstilosHoseg.PRIMARIO);
+        valor.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel descripcion = new JLabel(etiqueta);
+        descripcion.setFont(new Font("SansSerif", Font.BOLD, 13));
+        descripcion.setForeground(EstilosHoseg.TEXTO_MAIN);
+        descripcion.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel lblSub = new JLabel(subtitulo);
+        lblSub.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        lblSub.setForeground(EstilosHoseg.GRIS_TEXTO);
+        lblSub.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        cuerpoTarjeta.add(lblCat);
+        cuerpoTarjeta.add(Box.createVerticalStrut(6));
+        cuerpoTarjeta.add(valor);
+        cuerpoTarjeta.add(Box.createVerticalStrut(4));
+        cuerpoTarjeta.add(descripcion);
+        cuerpoTarjeta.add(Box.createVerticalStrut(2));
+        cuerpoTarjeta.add(lblSub);
+
         wrapper.add(cuerpoTarjeta, BorderLayout.CENTER);
         return wrapper;
     }
 
+
     ///////////////////////////////////777
        private JPanel construirModulos() {
         JPanel panel = new JPanel(new GridLayout(2, 3, 14, 14));
-        panel.setBackground(COLOR_FONDO_VENTANA);
+        panel.setBackground(EstilosHoseg.FONDO_VENTANA);
         panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
 
         Usuario usuario = SesionUsuario.obtenerInstancia().getUsuarioActual();
@@ -285,66 +298,67 @@ public class MenuPrincipalJFrame extends JFrame {
         boolean almacen = admin || rol == RolUsuario.ENCARGADO;
         boolean impacto = admin || rol == RolUsuario.GESTOR_IMPACTO;
 
-        panel.add(botonModulo("Gestión de productos", almacen, () -> new GestionProductosJFrame().setVisible(true)));
-        panel.add(botonModulo("Pedidos web", true, () -> new PedidosWebJFrame().setVisible(true)));
-        panel.add(botonModulo("Despacho de lotes", impacto, () -> new DespachoLotesJFrame().setVisible(true)));
-        panel.add(botonModulo("Reportes de impacto", impacto, () -> new ReportesImpactoJFrame().setVisible(true)));
-        panel.add(botonModulo("Pedidos a proveedores", almacen, () -> new ProveedoresJFrame().setVisible(true)));
-        panel.add(botonModulo("Gestión de usuarios", admin, () -> new UsuariosJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de productos", "Catálogo, stock comercial y comprometido",
+                almacen, () -> new GestionProductosJFrame().setVisible(true)));
+        panel.add(botonModulo("Pedidos web", "Validación de ventas y boletas con QR",
+                true, () -> new PedidosWebJFrame().setVisible(true)));
+        panel.add(botonModulo("Despacho de lotes", "Asignación y entrega a comunidades",
+                impacto, () -> new DespachoLotesJFrame().setVisible(true)));
+        panel.add(botonModulo("Reportes de impacto", "Trazabilidad Excel y Certificado B",
+                impacto, () -> new ReportesImpactoJFrame().setVisible(true)));
+        panel.add(botonModulo("Pedidos a proveedores", "Órdenes de reposición y recepción",
+                almacen, () -> new ProveedoresJFrame().setVisible(true)));
+        panel.add(botonModulo("Gestión de usuarios", "Cuentas, roles y control de acceso",
+                admin, () -> new UsuariosJFrame().setVisible(true)));
 
         return panel;
     }
 
-    private JButton botonModulo(String texto, boolean habilitado, Runnable accion) {
-        JButton boton = new JButton(texto);
-        boton.setEnabled(habilitado); //
-        boton.setFont(FUENTE_BOTONES);
+    private JButton botonModulo(String tituloModulo, String subtituloModulo, boolean habilitado, Runnable accion) {
+        String html = "<html><div style='text-align:center;'>"
+                + "<div style='font-size:13px; font-weight:bold;'>" + tituloModulo + "</div>"
+                + "<div style='font-size:10px; margin-top:3px; opacity:0.85;'>" + subtituloModulo + "</div>"
+                + "</div></html>";
+
+        JButton boton = new JButton(html);
+        boton.setEnabled(habilitado);
         boton.setFocusPainted(false);
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        boton.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        
+        boton.putClientProperty("FlatLaf.style", "arc: 12");
+
         if (habilitado) {
             boton.setBackground(Color.WHITE);
-            boton.setForeground(COLOR_PRIMARIO);
-            
+            boton.setForeground(EstilosHoseg.PRIMARIO);
             boton.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(COLOR_PRIMARIO, 1),
-                    BorderFactory.createEmptyBorder(10, 15, 10, 15)));
-
+                    new LineBorder(EstilosHoseg.PRIMARIO, 1),
+                    BorderFactory.createEmptyBorder(12, 16, 12, 16)));
 
             boton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    boton.setBackground(COLOR_PRIMARIO);
+                @Override public void mouseEntered(MouseEvent e) {
+                    boton.setBackground(EstilosHoseg.PRIMARIO);
                     boton.setForeground(Color.WHITE);
                 }
-                @Override
-                public void mouseExited(MouseEvent e) {
+                @Override public void mouseExited(MouseEvent e) {
                     boton.setBackground(Color.WHITE);
-                    boton.setForeground(COLOR_PRIMARIO);
+                    boton.setForeground(EstilosHoseg.PRIMARIO);
                 }
             });
         } else {
-            boton.setBackground(new Color(0xE0, 0xE0, 0xE0));
+            boton.setBackground(new Color(0xEA, 0xEA, 0xE8));
             boton.setForeground(new Color(0x9E, 0x9E, 0x9E));
             boton.setBorder(BorderFactory.createCompoundBorder(
-                    new javax.swing.border.LineBorder(new Color(0xD3, 0xD3, 0xD3), 1),
-                    BorderFactory.createEmptyBorder(10, 15, 10, 15)));    
+                    new LineBorder(new Color(0xD5, 0xD5, 0xD3), 1),
+                    BorderFactory.createEmptyBorder(12, 16, 12, 16)));
         }
 
-
-        // TO-DO: los módulos con accion == null se implementan en los pasos 7 a 10.
         boton.addActionListener(e -> {
             if (accion != null) {
-                accion.run(); //
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Módulo \"" + texto + "\" pendiente de implementación.",
-                        "En construcción", JOptionPane.INFORMATION_MESSAGE); //
+                accion.run();
             }
         });
         return boton;
     }
+
 
     //metodo crear boton
     private JButton crearBotónHeader(String texto, Color base, Color hover) {
@@ -441,36 +455,5 @@ public class MenuPrincipalJFrame extends JFrame {
         System.exit(0);
     }
 
-
-    //FRANJA
-    private static class FranjaDecorativaHoseg extends JComponent {
-        public FranjaDecorativaHoseg() {
-            setPreferredSize(new Dimension(100, 4));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            
-            // Activar calidad alta
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Degradado lineal horizontal: Azul -> Morado -> Rosa -> Rojo
-            LinearGradientPaint degradado = new LinearGradientPaint(
-                0, 0, getWidth(), 0,
-                new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                new Color[]{
-                    new Color(0x00, 0x33, 0xAA), // Azul
-                    new Color(0x6A, 0x1B, 0x9A), // Morado
-                    new Color(0xD8, 0x1B, 0x60), // Rosa / Magenta
-                    new Color(0xD3, 0x2F, 0x2F)  // Rojo
-                }
-            );
-
-            g2d.setPaint(degradado);
-            g2d.fillRect(0, 0, getWidth(), getHeight());
-        }
-    }
 
 }
